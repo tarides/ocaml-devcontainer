@@ -64,6 +64,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Reduce ASLR entropy for TSan build
+        # TSan requires lower ASLR entropy to avoid memory mapping collisions
+        # See: https://github.com/google/sanitizers/issues/1716
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 

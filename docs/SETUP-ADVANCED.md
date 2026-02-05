@@ -104,7 +104,7 @@ devcontainer up --workspace-folder . --config .devcontainer-from-scratch/devcont
 Create a tutorial-specific image:
 
 ```dockerfile
-FROM ghcr.io/<GITHUB_ORG>/ocaml-5.4-dev:latest
+FROM ghcr.io/tarides/ocaml-5.4-dev:latest
 
 # Add tutorial-specific packages
 RUN opam install -y lwt eio

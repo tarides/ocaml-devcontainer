@@ -25,6 +25,9 @@ Both images include two OCaml switches with **identical tools**:
 ## Build Commands
 
 ```bash
+# IMPORTANT: TSan requires reduced ASLR entropy on the build host
+sudo sysctl -w vm.mmap_rnd_bits=28
+
 # Local build (for customization)
 docker build -t ocaml-5.4-base base/
 docker build -t ocaml-5.4-dev dev/
@@ -32,6 +35,10 @@ docker build -t ocaml-5.4-dev dev/
 # Start container with pre-built images
 devcontainer up --workspace-folder .
 ```
+
+**Note:** The `vm.mmap_rnd_bits=28` setting is required for building the TSan switch.
+Without it, TSan compilation fails with "unexpected memory mapping" errors.
+See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 
 ## Running Tests
 
@@ -73,10 +80,9 @@ docs/                     # Setup guides for different workflows
 
 ## Configuration Placeholders
 
-Before deployment, replace in files:
-- `<GITHUB_ORG>` - GitHub organization name
-- `<DOCKER_USERNAME>` - Docker Hub username
-- `<REPO_NAME>` - Repository name
+Before deployment, set up GitHub repository secrets:
+- `DOCKERHUB_USERNAME` - Docker Hub username
+- `DOCKERHUB_TOKEN` - Docker Hub access token
 
 ## Package Installation Pattern
 

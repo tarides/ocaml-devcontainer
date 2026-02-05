@@ -14,7 +14,7 @@ The primary workflow for using this development environment with any editor.
 
 ```bash
 # Clone the repository
-git clone https://github.com/<GITHUB_ORG>/ocaml-devcontainer.git
+git clone https://github.com/tarides/ocaml-devcontainer.git
 cd ocaml-devcontainer
 
 # Start the container

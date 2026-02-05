@@ -4,7 +4,7 @@
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-LABEL org.opencontainers.image.source="https://github.com/<GITHUB_ORG>/ocaml-devcontainer"
+LABEL org.opencontainers.image.source="https://github.com/tarides/ocaml-devcontainer"
 LABEL org.opencontainers.image.description="OCaml 5.4 development base image"
 LABEL org.opencontainers.image.licenses="MIT"
 
@@ -45,12 +45,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     valgrind \
     strace \
     ltrace \
-    linux-tools-generic \
     # hyperfine for benchmarking
     hyperfine \
     # Python for test scripts
     python3 \
     python3-pip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install linux-tools (perf) - optional, depends on kernel version
+# May fail in containers due to kernel version mismatch
+RUN apt-get update && apt-get install -y --no-install-recommends linux-tools-generic || true \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -88,6 +93,9 @@ RUN opam init --disable-sandboxing --auto-setup --yes
 RUN opam switch create 5.4.0 ocaml-base-compiler.5.4.0 --yes
 
 # Create ThreadSanitizer switch for race detection
+# IMPORTANT: Building TSan requires reduced ASLR entropy on the host:
+#   sudo sysctl -w vm.mmap_rnd_bits=28
+# See: https://github.com/google/sanitizers/issues/1716
 RUN opam switch create 5.4.0+tsan ocaml-variants.5.4.0+options ocaml-option-tsan --yes
 
 # Set default switch

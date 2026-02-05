@@ -1,6 +1,6 @@
 {
   "name": "OCaml 5.4 Development",
-  "image": "ghcr.io/<GITHUB_ORG>/ocaml-5.4-dev:latest",
+  "image": "ghcr.io/tarides/ocaml-5.4-dev:latest",
 
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}

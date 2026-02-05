@@ -6,7 +6,7 @@ Quick start guide for the OCaml development environment.
 
 Click the button below to open in Codespaces (no local setup required):
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/<GITHUB_ORG>/ocaml-devcontainer)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
 ## Local Setup
 

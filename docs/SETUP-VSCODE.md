@@ -12,7 +12,7 @@ Native VS Code integration with the Dev Containers extension.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/<GITHUB_ORG>/ocaml-devcontainer.git
+   git clone https://github.com/tarides/ocaml-devcontainer.git
    ```
 
 2. Open in VS Code:

@@ -215,7 +215,7 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 ```json
 {
   "name": "OCaml 5.4 Development",
-  "image": "ghcr.io/<GITHUB_ORG>/ocaml-5.4-dev:latest",
+  "image": "ghcr.io/tarides/ocaml-5.4-dev:latest",
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
@@ -559,13 +559,13 @@ Before running CI/CD, you'll need to set up:
    - `DOCKERHUB_TOKEN` - Docker Hub access token (not password)
 
 2. **Replace placeholders in files:**
-   - `<GITHUB_ORG>` - Your GitHub organization name
+   - `tarides` - Your GitHub organization name
    - `<DOCKER_USERNAME>` - Your Docker Hub username
    - `<REPO_NAME>` - Repository name (e.g., `ocaml-devcontainer`)
 
 The images will be published to:
 - `docker.io/<DOCKER_USERNAME>/<REPO_NAME>:latest`
-- `ghcr.io/<GITHUB_ORG>/<REPO_NAME>:latest`
+- `ghcr.io/tarides/<REPO_NAME>:latest`
 
 ## Build Configuration
 
@@ -638,8 +638,8 @@ The images will be published to:
 Both published to:
 - `docker.io/<DOCKER_USERNAME>/ocaml-5.4-base`
 - `docker.io/<DOCKER_USERNAME>/ocaml-5.4-dev`
-- `ghcr.io/<GITHUB_ORG>/ocaml-5.4-base`
-- `ghcr.io/<GITHUB_ORG>/ocaml-5.4-dev`
+- `ghcr.io/tarides/ocaml-5.4-base`
+- `ghcr.io/tarides/ocaml-5.4-dev`
 
 ### CI/CD Workflow
 

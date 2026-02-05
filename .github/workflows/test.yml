@@ -23,12 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         switch: ['5.4.0', '5.4.0+tsan']
-        include:
-          - runner: ubuntu-latest
-            arch: amd64
-          # Uncomment if ARM runners are available:
-          # - runner: ubuntu-24.04-arm
-          #   arch: arm64
+        runner: [ubuntu-latest]
+        # Uncomment to add ARM runners:
+        # runner: [ubuntu-latest, ubuntu-24.04-arm]
 
     container:
       image: ${{ env.GHCR_REPO }}-dev:latest

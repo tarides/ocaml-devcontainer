@@ -1,0 +1,4 @@
+(executable
+ (name main)
+ (public_name dune_pkg_demo)
+ (libraries cmdliner))

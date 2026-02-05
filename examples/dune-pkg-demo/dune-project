@@ -1,0 +1,8 @@
+(lang dune 3.17)
+(name dune_pkg_demo)
+
+(package
+ (name dune_pkg_demo)
+ (depends
+  (ocaml (>= 5.4))
+  (cmdliner (>= 1.2))))

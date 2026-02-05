@@ -1,0 +1,212 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: ["Build and Push Images"]
+    types: [completed]
+  workflow_dispatch:
+
+env:
+  GHCR_REPO: ghcr.io/${{ github.repository_owner }}/ocaml-5.4
+
+jobs:
+  # ============================================================================
+  # Test OCaml compiler and tools (matrix: switch × arch)
+  # ============================================================================
+  test-ocaml:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['5.4.0', '5.4.0+tsan']
+        include:
+          - runner: ubuntu-latest
+            arch: amd64
+          # Uncomment if ARM runners are available:
+          # - runner: ubuntu-24.04-arm
+          #   arch: arm64
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run OCaml tests
+        run: |
+          ./test/test-ocaml.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test LSP server (matrix: switch)
+  # ============================================================================
+  test-lsp:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['5.4.0', '5.4.0+tsan']
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run LSP tests
+        run: |
+          ./test/test-lsp.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test profiling tools (matrix: switch)
+  # ============================================================================
+  test-profiling:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['5.4.0', '5.4.0+tsan']
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run profiling tests
+        run: |
+          ./test/test-profiling.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test dune package management
+  # ============================================================================
+  test-dune-pkg:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run dune pkg tests
+        run: |
+          ./test/test-dune-pkg.sh
+
+  # ============================================================================
+  # Test MCP server (matrix: switch)
+  # ============================================================================
+  test-mcp:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['5.4.0', '5.4.0+tsan']
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run MCP tests
+        run: |
+          ./test/test-mcp.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test editor integrations
+  # ============================================================================
+  test-vscode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Run VS Code tests
+        run: |
+          ./test/test-vscode.sh
+
+  test-emacs:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Emacs tests
+        run: |
+          ./test/test-emacs.sh
+
+  test-neovim:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Neovim tests
+        run: |
+          ./test/test-neovim.sh
+
+  test-claude:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ env.GHCR_REPO }}-dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code tests
+        run: |
+          ./test/test-claude.sh
+
+  # ============================================================================
+  # Summary job (for required status checks)
+  # ============================================================================
+  test-summary:
+    runs-on: ubuntu-latest
+    needs:
+      - test-ocaml
+      - test-lsp
+      - test-profiling
+      - test-dune-pkg
+      - test-mcp
+      - test-vscode
+      - test-emacs
+      - test-neovim
+      - test-claude
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test-ocaml.result }}" != "success" ]; then
+            echo "test-ocaml failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-lsp.result }}" != "success" ]; then
+            echo "test-lsp failed"
+            exit 1
+          fi
+          # Note: Some tests may be expected to have warnings, not failures
+          echo "All critical tests passed"

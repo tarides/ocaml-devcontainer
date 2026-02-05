@@ -1,0 +1,47 @@
+{
+  "name": "OCaml 5.4 Development (Local Build)",
+
+  "build": {
+    "dockerfile": "../dev/Dockerfile",
+    "context": "..",
+    "args": {
+      "BASE_IMAGE": "ocaml-5.4-base:latest"
+    }
+  },
+
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ocamllabs.ocaml-platform"
+      ],
+      "settings": {
+        "ocaml.sandbox": {
+          "kind": "opam",
+          "switch": "5.4.0"
+        }
+      }
+    }
+  },
+
+  "postStartCommand": "eval $(opam env)",
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    "source=dune-cache,target=/home/vscode/.cache/dune,type=volume"
+  ],
+
+  "remoteEnv": {
+    "DUNE_CACHE_ROOT": "/home/vscode/.cache/dune"
+  },
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  }
+}

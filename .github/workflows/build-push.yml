@@ -1,0 +1,183 @@
+name: Build and Push Images
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - 'base/**'
+      - 'dev/**'
+      - '.github/workflows/build-push.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'base/**'
+      - 'dev/**'
+  workflow_dispatch:
+    inputs:
+      force_base_build:
+        description: 'Force rebuild of base image'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  DOCKER_HUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-5.4
+  GHCR_REPO: ghcr.io/${{ github.repository_owner }}/ocaml-5.4
+
+jobs:
+  # ============================================================================
+  # Check what changed to determine if base needs rebuilding
+  # ============================================================================
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      base: ${{ steps.filter.outputs.base }}
+      dev: ${{ steps.filter.outputs.dev }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            base:
+              - 'base/**'
+            dev:
+              - 'dev/**'
+
+  # ============================================================================
+  # Build Base Image (only when base/ changes or forced)
+  # ============================================================================
+  build-base:
+    needs: changes
+    if: |
+      needs.changes.outputs.base == 'true' ||
+      github.event.inputs.force_base_build == 'true' ||
+      startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.DOCKER_HUB_REPO }}-base
+            ${{ env.GHCR_REPO }}-base
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=sha,prefix=
+
+      - name: Build and push base image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./base
+          file: ./base/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # Build Dev Image (depends on base, always runs on main)
+  # ============================================================================
+  build-dev:
+    needs: [changes, build-base]
+    # Run if:
+    # - base was built successfully, OR
+    # - dev/ changed and base didn't need rebuilding, OR
+    # - it's a tag release
+    if: |
+      always() &&
+      (needs.build-base.result == 'success' ||
+       needs.build-base.result == 'skipped') &&
+      (needs.changes.outputs.dev == 'true' ||
+       needs.changes.outputs.base == 'true' ||
+       startsWith(github.ref, 'refs/tags/') ||
+       github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.DOCKER_HUB_REPO }}-dev
+            ${{ env.GHCR_REPO }}-dev
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=sha,prefix=
+
+      - name: Build and push dev image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./dev
+          file: ./dev/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ env.GHCR_REPO }}-base:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

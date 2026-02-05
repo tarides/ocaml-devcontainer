@@ -1,0 +1,92 @@
+# OCaml 5.4 DevContainer
+
+Production-ready OCaml development environment for VS Code, Codespaces, and any editor.
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/<GITHUB_ORG>/ocaml-devcontainer)
+
+## Features
+
+- **OCaml 5.4** with standard and ThreadSanitizer variants
+- **Full toolchain**: dune, LSP, merlin, ocamlformat, utop
+- **Testing**: ounit2, ppx_expect, qcheck, bisect_ppx (coverage)
+- **Profiling**: landmarks, memtrace, olly
+- **Multi-editor**: VS Code, Vim, Emacs, Neovim, Claude Code
+- **Zero setup**: Works instantly in GitHub Codespaces
+
+## Quick Start
+
+### GitHub Codespaces (Instant)
+
+Click "Open in GitHub Codespaces" above. Ready in ~2 minutes.
+
+### Local (VS Code)
+
+```bash
+git clone https://github.com/<GITHUB_ORG>/ocaml-devcontainer.git
+code ocaml-devcontainer
+# Click "Reopen in Container" when prompted
+```
+
+### Local (Any Editor)
+
+```bash
+npm install -g @devcontainers/cli
+git clone https://github.com/<GITHUB_ORG>/ocaml-devcontainer.git
+cd ocaml-devcontainer
+devcontainer up --workspace-folder .
+
+# Use your preferred editor
+devcontainer exec --workspace-folder . vim examples/hello/hello.ml
+devcontainer exec --workspace-folder . dune build
+```
+
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [DEVCONTAINER.md](DEVCONTAINER.md) | Quick start overview |
+| [docs/SETUP-CODESPACES.md](docs/SETUP-CODESPACES.md) | GitHub Codespaces setup |
+| [docs/SETUP-DEVCONTAINER-EXEC.md](docs/SETUP-DEVCONTAINER-EXEC.md) | Primary local workflow |
+| [docs/SETUP-VSCODE.md](docs/SETUP-VSCODE.md) | VS Code integration |
+| [docs/SETUP-ADVANCED.md](docs/SETUP-ADVANCED.md) | TRAMP, MCP, customization |
+
+## OCaml Switches
+
+Two switches are pre-configured with identical tools:
+
+| Switch | Description |
+|--------|-------------|
+| `5.4.0` | Standard OCaml 5.4 (default) |
+| `5.4.0+tsan` | ThreadSanitizer for race detection |
+
+Switch between them:
+```bash
+opam switch 5.4.0+tsan
+eval $(opam env)
+```
+
+## Project Structure
+
+```
+.devcontainer/           # Pre-built image config (fast startup)
+.devcontainer-from-scratch/  # Local build config
+base/                    # Base image (compilers)
+dev/                     # Dev image (tools)
+examples/                # Sample projects
+test/                    # Integration tests
+docs/                    # Setup guides
+```
+
+## For Tutorial Authors
+
+This environment is designed for OCaml tutorials and workshops. Create a tutorial-specific image:
+
+```dockerfile
+FROM ghcr.io/<GITHUB_ORG>/ocaml-5.4-dev:latest
+RUN opam install -y lwt eio  # Add your packages
+COPY exercises/ /home/vscode/exercises/
+```
+
+## License
+
+MIT

@@ -41,7 +41,7 @@ devcontainer exec --workspace-folder . claude
 | **Profiling** | landmarks, memtrace, olly |
 | **Debugging** | gdb, lldb, valgrind, rr, perf |
 | **Editors** | vim, emacs, Claude Code |
-| **AI Integration** | ocaml-mcp (MCP server) |
+| **AI Integration** | ocaml-mcp-server (MCP server) |
 
 ## Common Commands
 

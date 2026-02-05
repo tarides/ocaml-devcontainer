@@ -90,7 +90,7 @@ echo ""
 echo "--- Test 8: Verify profiling tools ---"
 opam list --installed | grep -q "landmarks" || { echo "FAIL: landmarks not installed"; exit 1; }
 opam list --installed | grep -q "memtrace" || { echo "FAIL: memtrace not installed"; exit 1; }
-opam list --installed | grep -q "olly" || { echo "FAIL: olly not installed"; exit 1; }
+opam list --installed | grep -q "runtime_events_tools" || { echo "FAIL: runtime_events_tools not installed"; exit 1; }
 opam list --installed | grep -q "bisect_ppx" || { echo "FAIL: bisect_ppx not installed"; exit 1; }
 echo "PASS: Profiling tools installed"
 

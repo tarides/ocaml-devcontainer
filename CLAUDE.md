@@ -18,7 +18,7 @@ ocaml-5.4-base (compilers, ~35-50 min build, rebuild rare)
         └── [tutorial-specific] (optional, user-created, seconds to build)
 ```
 
-Both images include two OCaml switches with **identical tools**:
+The base image creates both OCaml switches (compilers only). The dev image installs **identical tools** in both switches:
 - `5.4.0` - Standard compiler (default)
 - `5.4.0+tsan` - ThreadSanitizer variant for race detection
 
@@ -61,7 +61,7 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 
 - **Primary workflow:** `devcontainer exec` from host (works with any editor)
 - **Package management:** Support both opam (traditional) and dune pkg (modern)
-- **MCP integration:** ocaml-mcp (local) pre-installed, odoc-llm (remote) documented
+- **MCP integration:** ocaml-mcp-server (local) pre-installed, odoc-llm (remote) documented
 - **Base image:** Microsoft devcontainers/base (not ocaml/opam) for DevContainer Feature support
 - **Registries:** Publish to both Docker Hub and GHCR
 - **Claude Code:** Installed via DevContainer Feature
@@ -92,8 +92,8 @@ Tools are defined once and installed identically in both switches:
 ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
 ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
 ENV OCAML_LIBS="core base"
-ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace olly printbox"
-ENV OCAML_MCP="ocaml-mcp"
+ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
+ENV OCAML_MCP="ocaml-mcp-server"
 ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE $OCAML_MCP"
 
 RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \

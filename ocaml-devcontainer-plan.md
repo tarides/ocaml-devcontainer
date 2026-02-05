@@ -66,7 +66,7 @@ For **tutorials and training sessions**, this setup friction is a barrier:
 | Claude Code | Include via DevContainer Feature (only editor inside container) |
 | Architectures | Multi-arch (amd64 + arm64), QEMU fallback if no native ARM runners |
 | Hosting | New GitHub repository (organization) |
-| MCP support | Both: ocaml-mcp (local) in dev image + odoc-llm (remote) documented |
+| MCP support | Both: ocaml-mcp-server (local) in dev image + odoc-llm (remote) documented |
 
 ## Overview
 
@@ -170,11 +170,11 @@ This prevents users who SSH in from getting a "naked" editor without LSP.
 *Profiling & Debugging:*
 - landmarks, landmarks-ppx (instrumentation profiling)
 - memtrace (memory profiling via statmemprof)
-- olly (runtime events / GC latency)
+- runtime_events_tools (olly - runtime events / GC latency)
 - printbox (pretty-print data structures)
 
 *MCP (Model Context Protocol):*
-- ocaml-mcp (local MCP server for AI agent integration)
+- ocaml-mcp-server (local MCP server for AI agent integration)
 
 **Dockerfile pattern for identical switches:**
 ```dockerfile
@@ -182,8 +182,8 @@ This prevents users who SSH in from getting a "naked" editor without LSP.
 ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
 ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
 ENV OCAML_LIBS="core base"
-ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace olly printbox"
-ENV OCAML_MCP="ocaml-mcp"
+ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
+ENV OCAML_MCP="ocaml-mcp-server"
 ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE $OCAML_MCP"
 
 RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \
@@ -605,7 +605,7 @@ The images will be published to:
 │  • Testing: ounit2, ppx_inline_test, ppx_expect, qcheck │
 │  • Coverage: bisect_ppx                                 │
 │  • Profiling: landmarks, memtrace, olly                 │
-│  • MCP: ocaml-mcp (local AI agent integration)          │
+│  • MCP: ocaml-mcp-server (local AI agent integration)   │
 │  • Libraries: core, base                                │
 │  (identical in both switches)                           │
 │  • Claude Code (via DevContainer Feature)               │
@@ -752,7 +752,7 @@ Could provide both via:
 - LSP server (ocaml-lsp-server)
 - Build tools (dune)
 - Development tools (merlin, ocamlformat, utop)
-- MCP server (ocaml-mcp for AI agent integration)
+- MCP server (ocaml-mcp-server for AI agent integration)
 - Claude Code (via DevContainer Feature)
 
 ### Documentation approach:

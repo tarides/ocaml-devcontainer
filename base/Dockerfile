@@ -89,14 +89,19 @@ RUN opam init --disable-sandboxing --auto-setup --yes
 # OCaml Switches
 # ============================================================================
 
-# Create standard OCaml 5.4.0 switch
-RUN opam switch create 5.4.0 ocaml-base-compiler.5.4.0 --yes
+# OCaml platform tools - installed at switch creation time in both switches
+ENV OCAML_PLATFORM="dune ocaml-lsp-server merlin utop odoc"
 
-# Create ThreadSanitizer switch for race detection
+# Create standard OCaml 5.4.0 switch and install platform tools
+RUN opam switch create 5.4.0 ocaml-base-compiler.5.4.0 --yes && \
+    opam install -y ${OCAML_PLATFORM}
+
+# Create ThreadSanitizer switch for race detection and install platform tools
 # IMPORTANT: Building TSan requires reduced ASLR entropy on the host:
 #   sudo sysctl -w vm.mmap_rnd_bits=28
 # See: https://github.com/google/sanitizers/issues/1716
-RUN opam switch create 5.4.0+tsan ocaml-variants.5.4.0+options ocaml-option-tsan --yes
+RUN opam switch create 5.4.0+tsan ocaml-variants.5.4.0+options ocaml-option-tsan --yes && \
+    opam install -y ${OCAML_PLATFORM}
 
 # Set default switch
 RUN opam switch set 5.4.0

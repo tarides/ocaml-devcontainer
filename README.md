@@ -2,7 +2,7 @@
 
 Production-ready OCaml development environment for VS Code, Codespaces, and any editor.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
+[![Create a GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
 ## Features
 
@@ -17,7 +17,7 @@ Production-ready OCaml development environment for VS Code, Codespaces, and any 
 
 ### GitHub Codespaces (Instant)
 
-Click "Open in GitHub Codespaces" above. Ready in ~2 minutes.
+Click "Create a GitHub Codespace" above. Ready in ~2 minutes.
 
 ### Local (VS Code)
 

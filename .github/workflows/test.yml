@@ -10,6 +10,11 @@ on:
     types: [completed]
   workflow_dispatch:
 
+# Container jobs run as root (required by actions/checkout), so we must
+# point opam at the vscode user's opam root and add its bin to PATH.
+env:
+  OPAMROOT: /home/vscode/.opam
+
 jobs:
   # ============================================================================
   # Test OCaml compiler and tools (matrix: switch × arch)
@@ -26,6 +31,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -47,6 +53,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -68,6 +75,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -85,6 +93,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -116,6 +125,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -130,6 +140,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout
@@ -144,6 +155,7 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      options: --user root
 
     steps:
       - name: Checkout

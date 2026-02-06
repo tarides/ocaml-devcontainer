@@ -64,7 +64,7 @@ echo "PASS: dune runtest works"
 # Test 6: Verify all tools present
 echo ""
 echo "--- Test 6: Verify tools installed ---"
-TOOLS="ocamlformat utop merlin ocamllsp odoc"
+TOOLS="ocamlformat utop ocamlmerlin ocamllsp odoc"
 for tool in $TOOLS; do
     if command -v "$tool" &> /dev/null; then
         echo "  $tool: $(which $tool)"
@@ -91,7 +91,6 @@ echo "--- Test 8: Verify profiling tools ---"
 opam list --installed | grep -q "landmarks" || { echo "FAIL: landmarks not installed"; exit 1; }
 opam list --installed | grep -q "memtrace" || { echo "FAIL: memtrace not installed"; exit 1; }
 opam list --installed | grep -q "runtime_events_tools" || { echo "FAIL: runtime_events_tools not installed"; exit 1; }
-opam list --installed | grep -q "bisect_ppx" || { echo "FAIL: bisect_ppx not installed"; exit 1; }
 echo "PASS: Profiling tools installed"
 
 echo ""

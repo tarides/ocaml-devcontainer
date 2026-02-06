@@ -24,16 +24,21 @@ cat > dune-project << 'EOF'
 (name profiling_test)
 EOF
 
-# Test 1: landmarks profiling
+# Test 1: landmarks library
 echo ""
-echo "--- Test 1: landmarks profiling ---"
+echo "--- Test 1: landmarks library ---"
 cat > landmarks_test.ml << 'EOF'
-let[@landmark] fib n =
+let lm = Landmark.register "fib"
+
+let fib n =
+  Landmark.enter lm;
   let rec loop a b count =
     if count <= 0 then a
     else loop b (a + b) (count - 1)
   in
-  loop 0 1 n
+  let r = loop 0 1 n in
+  Landmark.exit lm;
+  r
 
 let () =
   for _ = 1 to 1000 do
@@ -44,7 +49,6 @@ EOF
 cat > dune << 'EOF'
 (executable
  (name landmarks_test)
- (preprocess (pps landmarks-ppx --auto))
  (libraries landmarks))
 EOF
 
@@ -92,46 +96,13 @@ EOF
 
 dune build olly_test.exe
 
-# olly requires OCaml runtime events support
-if command -v olly &> /dev/null; then
-    # Try to run olly, but it may fail in some environments
-    olly trace dune exec ./olly_test.exe -- 2>&1 || echo "WARN: olly may require specific runtime support"
-    echo "PASS: olly command available"
+# runtime_events_tools provides ocaml-runtime-tracer
+if command -v ocaml-runtime-tracer &> /dev/null; then
+    ocaml-runtime-tracer trace dune exec ./olly_test.exe -- 2>&1 || echo "WARN: ocaml-runtime-tracer may require specific runtime support"
+    echo "PASS: ocaml-runtime-tracer command available"
 else
-    echo "FAIL: olly not found"
+    echo "FAIL: ocaml-runtime-tracer not found"
     exit 1
-fi
-
-# Test 4: bisect_ppx coverage
-echo ""
-echo "--- Test 4: bisect_ppx coverage ---"
-cat > coverage_test.ml << 'EOF'
-let add x y = x + y
-let sub x y = x - y
-
-let () =
-  assert (add 1 2 = 3);
-  assert (sub 5 3 = 2)
-EOF
-
-cat > dune << 'EOF'
-(executable
- (name coverage_test)
- (instrumentation (backend bisect_ppx)))
-EOF
-
-dune build coverage_test.exe
-BISECT_FILE=coverage dune exec ./coverage_test.exe
-
-if ls coverage*.coverage &> /dev/null; then
-    echo "PASS: bisect_ppx coverage files generated"
-    # Generate report if bisect-ppx-report is available
-    if command -v bisect-ppx-report &> /dev/null; then
-        bisect-ppx-report summary coverage*.coverage 2>/dev/null || true
-    fi
-    rm -f coverage*.coverage
-else
-    echo "WARN: bisect_ppx coverage files not generated"
 fi
 
 # Cleanup

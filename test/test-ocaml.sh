@@ -82,7 +82,7 @@ echo "--- Test 7: Verify testing tools ---"
 opam list --installed | grep -q "ppx_inline_test" || { echo "FAIL: ppx_inline_test not installed"; exit 1; }
 opam list --installed | grep -q "ppx_expect" || { echo "FAIL: ppx_expect not installed"; exit 1; }
 opam list --installed | grep -q "qcheck" || { echo "FAIL: qcheck not installed"; exit 1; }
-opam list --installed | grep -q "ounit2" || { echo "FAIL: ounit2 not installed"; exit 1; }
+opam list --installed | grep -q "alcotest" || { echo "FAIL: alcotest not installed"; exit 1; }
 echo "PASS: Testing tools installed"
 
 # Test 8: Verify profiling tools

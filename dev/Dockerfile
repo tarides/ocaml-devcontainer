@@ -24,7 +24,7 @@ WORKDIR /home/vscode
 
 # Define tools once - installed identically in both switches
 ENV OCAML_BUILD="ocamlformat"
-ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck"
+ENV OCAML_TEST="alcotest ppx_inline_test ppx_expect qcheck"
 ENV OCAML_LIBS="core base"
 ENV OCAML_PROFILE="landmarks memtrace runtime_events_tools printbox"
 

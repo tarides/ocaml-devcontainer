@@ -8,7 +8,7 @@ Production-ready OCaml development environment for VS Code, Codespaces, and any 
 
 - **OCaml 5.4** with standard and ThreadSanitizer variants
 - **Full toolchain**: dune, LSP, merlin, ocamlformat, utop
-- **Testing**: ounit2, ppx_expect, qcheck, bisect_ppx (coverage)
+- **Testing**: alcotest, ppx_expect, qcheck
 - **Profiling**: landmarks, memtrace, olly
 - **Multi-editor**: VS Code, Vim, Emacs, Neovim, Claude Code
 - **Zero setup**: Works instantly in GitHub Codespaces

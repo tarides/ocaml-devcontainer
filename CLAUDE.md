@@ -88,7 +88,7 @@ Tools are defined once and installed identically in both switches:
 
 ```dockerfile
 ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
-ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
+ENV OCAML_TEST="alcotest ppx_inline_test ppx_expect qcheck bisect_ppx"
 ENV OCAML_LIBS="core base"
 ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
 ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"

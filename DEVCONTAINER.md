@@ -37,7 +37,7 @@ devcontainer exec --workspace-folder . claude
 |----------|-------|
 | **Compilers** | OCaml 5.4.0, OCaml 5.4.0+tsan |
 | **Build** | dune, ocaml-lsp-server, merlin, ocamlformat, utop, odoc |
-| **Testing** | ounit2, ppx_inline_test, ppx_expect, qcheck, bisect_ppx |
+| **Testing** | alcotest, ppx_inline_test, ppx_expect, qcheck |
 | **Profiling** | landmarks, memtrace, olly |
 | **Debugging** | gdb, lldb, valgrind, rr, perf |
 | **Editors** | vim, emacs, Claude Code |

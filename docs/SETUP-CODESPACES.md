@@ -19,7 +19,7 @@ Zero-installation OCaml development environment. Perfect for tutorials and works
   - ocaml-lsp-server (editor support)
   - ocamlformat (code formatting)
   - utop (interactive REPL)
-- Testing tools: ounit2, ppx_expect, qcheck
+- Testing tools: alcotest, ppx_expect, qcheck
 - Profiling tools: landmarks, memtrace, olly
 
 ## Switching OCaml Versions

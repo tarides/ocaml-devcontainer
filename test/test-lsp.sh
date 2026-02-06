@@ -16,6 +16,13 @@ echo "Activating switch $SWITCH..."
 opam switch "$SWITCH"
 eval $(opam env)
 
+# Build the OCaml LSP test client
+echo ""
+echo "--- Building LSP test client ---"
+(cd "$SCRIPT_DIR/lsp-client" && dune build)
+LSP_CLIENT="$SCRIPT_DIR/lsp-client/_build/default/lsp_client.exe"
+echo "DONE: LSP test client built"
+
 # Verify ocamllsp is available
 echo ""
 echo "--- Checking ocamllsp installation ---"
@@ -26,7 +33,7 @@ echo "ocamllsp version: $OCAMLLSP_VERSION"
 echo ""
 echo "--- Test 1: Initialize LSP server ---"
 cd "$EXAMPLES_DIR/hello"
-INIT_RESULT=$(python3 "$SCRIPT_DIR/lsp-client.py" initialize . 2>&1)
+INIT_RESULT=$("$LSP_CLIENT" initialize . 2>&1)
 echo "$INIT_RESULT" | grep -q '"capabilities"' || { echo "FAIL: Initialize failed"; echo "$INIT_RESULT"; exit 1; }
 echo "PASS: LSP server initialized"
 
@@ -51,7 +58,7 @@ cd "$TEMP_DIR"
 dune build 2>/dev/null || true  # Build to generate .merlin
 
 # Request hover on 'x' (line 0, col 4)
-HOVER_RESULT=$(python3 "$SCRIPT_DIR/lsp-client.py" hover test.ml 0 4 2>&1)
+HOVER_RESULT=$("$LSP_CLIENT" hover test.ml 0 4 2>&1)
 echo "$HOVER_RESULT" | grep -q "int" || { echo "WARN: Hover may not return type info immediately"; }
 echo "PASS: Hover request completed"
 
@@ -62,7 +69,7 @@ cat > "$TEMP_DIR/complete.ml" << 'EOF'
 let () = print_
 EOF
 
-COMPLETION_RESULT=$(python3 "$SCRIPT_DIR/lsp-client.py" completion complete.ml 0 16 2>&1)
+COMPLETION_RESULT=$("$LSP_CLIENT" completion complete.ml 0 16 2>&1)
 # Check that we got some completion items
 echo "$COMPLETION_RESULT" | grep -q '"items"' || echo "$COMPLETION_RESULT" | grep -q '"result"' || { echo "WARN: Completion response format may vary"; }
 echo "PASS: Completion request completed"
@@ -78,13 +85,13 @@ EOF
 # Create .ocamlformat file
 echo "version = 0.26.2" > "$TEMP_DIR/.ocamlformat"
 
-FORMAT_RESULT=$(python3 "$SCRIPT_DIR/lsp-client.py" format format.ml 2>&1)
+FORMAT_RESULT=$("$LSP_CLIENT" format format.ml 2>&1)
 echo "PASS: Formatting request completed"
 
 # Test 5: Shutdown
 echo ""
 echo "--- Test 5: Clean shutdown ---"
-SHUTDOWN_RESULT=$(python3 "$SCRIPT_DIR/lsp-client.py" shutdown 2>&1)
+SHUTDOWN_RESULT=$("$LSP_CLIENT" shutdown 2>&1)
 echo "$SHUTDOWN_RESULT" | grep -q '"result"' || { echo "WARN: Shutdown response may vary"; }
 echo "PASS: LSP server shutdown cleanly"
 

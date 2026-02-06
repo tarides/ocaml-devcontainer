@@ -1,0 +1,3 @@
+(executable
+ (name lsp_client)
+ (libraries yojson unix))

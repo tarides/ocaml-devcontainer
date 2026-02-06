@@ -1,22 +1,6 @@
 {
-  "name": "OCaml 5.4 Development (Local Build)",
-
-  // Builds OCaml 5.4 by default. To build 4.14 instead, change the args below:
-  //   "OCAML_VERSION": "4.14.2",
-  //   "ENABLE_TSAN": "false",
-  //   "OCAML_EXTRA_PROFILE": "",
-  //   "BASE_IMAGE": "ocaml-4.14-base:latest"
-  // and set the switch in vscode settings to "4.14.2".
-  "build": {
-    "dockerfile": "../dev/Dockerfile",
-    "context": "..",
-    "args": {
-      "BASE_IMAGE": "ocaml-5.4-base:latest",
-      "OCAML_VERSION": "5.4.0",
-      "ENABLE_TSAN": "true",
-      "OCAML_EXTRA_PROFILE": "runtime_events_tools"
-    }
-  },
+  "name": "OCaml 4.14 Development",
+  "image": "ghcr.io/tarides/ocaml-4.14-dev:latest",
 
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
@@ -30,7 +14,7 @@
       "settings": {
         "ocaml.sandbox": {
           "kind": "opam",
-          "switch": "5.4.0"
+          "switch": "4.14.2"
         }
       }
     }
@@ -52,5 +36,9 @@
     "cpus": 4,
     "memory": "8gb",
     "storage": "32gb"
+  },
+
+  "codespaces": {
+    "openFiles": ["README.md"]
   }
 }

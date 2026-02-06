@@ -1,6 +1,6 @@
-# OCaml 5.4 DevContainer
+# OCaml DevContainer
 
-Quick start guide for the OCaml development environment.
+Quick start guide for the OCaml development environment. Available for OCaml 5.4 (default) and 4.14.
 
 ## Fastest Start: GitHub Codespaces
 
@@ -35,7 +35,7 @@ devcontainer exec --workspace-folder . claude
 
 | Category | Tools |
 |----------|-------|
-| **Compilers** | OCaml 5.4.0, OCaml 5.4.0+tsan |
+| **Compilers** | OCaml 5.4.0, OCaml 5.4.0+tsan, OCaml 4.14.2 |
 | **Build** | dune, ocaml-lsp-server, merlin, ocamlformat, utop, odoc |
 | **Testing** | ounit2, ppx_inline_test, ppx_expect, qcheck, bisect_ppx |
 | **Profiling** | landmarks, memtrace, olly |

@@ -27,8 +27,9 @@ echo ""
 echo "--- Test 2: Check compiler version ---"
 VERSION=$(ocaml -version)
 echo "OCaml version: $VERSION"
-echo "$VERSION" | grep -q "5.4" || { echo "FAIL: Expected OCaml 5.4.x"; exit 1; }
-echo "PASS: OCaml 5.4.x installed"
+EXPECTED_VERSION=$(echo "$SWITCH" | sed 's/+.*//' | sed 's/\.[0-9]*$//')
+echo "$VERSION" | grep -q "$EXPECTED_VERSION" || { echo "FAIL: Expected OCaml $EXPECTED_VERSION.x"; exit 1; }
+echo "PASS: OCaml $EXPECTED_VERSION.x installed"
 
 # Test 3: Compile sample program with ocamlopt
 echo ""
@@ -90,7 +91,12 @@ echo ""
 echo "--- Test 8: Verify profiling tools ---"
 opam list --installed | grep -q "landmarks" || { echo "FAIL: landmarks not installed"; exit 1; }
 opam list --installed | grep -q "memtrace" || { echo "FAIL: memtrace not installed"; exit 1; }
-opam list --installed | grep -q "runtime_events_tools" || { echo "FAIL: runtime_events_tools not installed"; exit 1; }
+MAJOR_VERSION=$(ocaml -vnum | cut -d. -f1)
+if [ "$MAJOR_VERSION" -ge 5 ]; then
+    opam list --installed | grep -q "runtime_events_tools" || { echo "FAIL: runtime_events_tools not installed"; exit 1; }
+else
+    echo "  SKIP: runtime_events_tools (OCaml 5.x only)"
+fi
 echo "PASS: Profiling tools installed"
 
 echo ""

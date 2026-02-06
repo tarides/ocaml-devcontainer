@@ -55,6 +55,8 @@ GDB and LLDB are available for native debugging. VS Code's debugger can be confi
 
 ## Switching OCaml Versions
 
+Within the 5.4 image, switch between compilers:
+
 1. Open the VS Code terminal
 2. Run:
    ```bash
@@ -62,6 +64,8 @@ GDB and LLDB are available for native debugging. VS Code's debugger can be confi
    eval $(opam env)
    ```
 3. Reload the window (`Ctrl+Shift+P` → "Developer: Reload Window")
+
+To use OCaml 4.14 instead, reopen the project using `.devcontainer-4.14/devcontainer.json`.
 
 ## Troubleshooting
 

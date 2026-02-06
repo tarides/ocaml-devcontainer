@@ -12,6 +12,8 @@ Zero-installation OCaml development environment. Perfect for tutorials and works
 
 ## What's Included
 
+The default Codespace uses OCaml 5.4. An OCaml 4.14 configuration is also available (see below).
+
 - OCaml 5.4.0 compiler (default)
 - OCaml 5.4.0+tsan (ThreadSanitizer variant)
 - Full development toolchain:
@@ -33,6 +35,8 @@ eval $(opam env)
 opam switch 5.4.0+tsan
 eval $(opam env)
 ```
+
+To create a Codespace with OCaml 4.14, select `.devcontainer-4.14/devcontainer.json` as the dev container configuration when creating the Codespace.
 
 ## Building Your Project
 

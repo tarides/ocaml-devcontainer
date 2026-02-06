@@ -21,10 +21,6 @@ on:
         default: 'false'
         type: boolean
 
-env:
-  DOCKER_HUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-5.4
-  GHCR_REPO: ghcr.io/${{ github.repository_owner }}/ocaml-5.4
-
 jobs:
   # ============================================================================
   # Check what changed to determine if base needs rebuilding
@@ -47,26 +43,41 @@ jobs:
               - 'dev/**'
 
   # ============================================================================
-  # Fan-out: Build Base Images (parallel per architecture)
+  # Build Base Images (matrix: arch × ocaml version)
   # ============================================================================
-  build-base-amd64:
+  build-base:
     needs: changes
     if: |
       needs.changes.outputs.base == 'true' ||
       github.event.inputs.force_base_build == 'true' ||
       startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+        ocaml:
+          - { version: "5.4.0", enable_tsan: "true", image_suffix: "5.4" }
+          - { version: "4.14.2", enable_tsan: "false", image_suffix: "4.14" }
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+            platform: linux/amd64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Reduce ASLR entropy for TSan build
+        if: matrix.ocaml.enable_tsan == 'true'
         # TSan requires lower ASLR entropy to avoid memory mapping collisions
-        # Native runners allow this sysctl to take effect (unlike BuildKit containers)
         # See: https://github.com/google/sanitizers/issues/1716
         run: sudo sysctl -w vm.mmap_rnd_bits=28
 
@@ -88,146 +99,57 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push base image (amd64)
+      - name: Build and push base image
         uses: docker/build-push-action@v6
         with:
           context: ./base
           file: ./base/Dockerfile
-          platforms: linux/amd64
+          platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-base:latest-amd64
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha,scope=base-amd64
-          cache-to: type=gha,mode=max,scope=base-amd64
-
-  build-base-arm64:
-    needs: changes
-    if: |
-      needs.changes.outputs.base == 'true' ||
-      github.event.inputs.force_base_build == 'true' ||
-      startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Reduce ASLR entropy for TSan build
-        run: sudo sysctl -w vm.mmap_rnd_bits=28
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Login to GitHub Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push base image (arm64)
-        uses: docker/build-push-action@v6
-        with:
-          context: ./base
-          file: ./base/Dockerfile
-          platforms: linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.GHCR_REPO }}-base:latest-arm64
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
-          labels: |
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha,scope=base-arm64
-          cache-to: type=gha,mode=max,scope=base-arm64
-
-  # ============================================================================
-  # Fan-out: Build Dev Images (fast-lane: each arch depends only on its base)
-  # ============================================================================
-  build-dev-amd64:
-    needs: [changes, build-base-amd64]
-    if: |
-      always() &&
-      (needs.build-base-amd64.result == 'success' ||
-       needs.build-base-amd64.result == 'skipped') &&
-      (needs.changes.outputs.dev == 'true' ||
-       needs.changes.outputs.base == 'true' ||
-       startsWith(github.ref, 'refs/tags/') ||
-       github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Login to GitHub Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push dev image (amd64)
-        uses: docker/build-push-action@v6
-        with:
-          context: ./dev
-          file: ./dev/Dockerfile
-          platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ env.GHCR_REPO }}-dev:latest-amd64
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.ocaml.image_suffix }}-base:latest-${{ matrix.arch }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.ocaml.image_suffix }}-base:latest-${{ matrix.arch }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            BASE_IMAGE=${{ env.GHCR_REPO }}-base:latest-amd64
-          cache-from: type=gha,scope=dev-amd64
-          cache-to: type=gha,mode=max,scope=dev-amd64
+            OCAML_VERSION=${{ matrix.ocaml.version }}
+            ENABLE_TSAN=${{ matrix.ocaml.enable_tsan }}
+          cache-from: type=gha,scope=base-${{ matrix.ocaml.image_suffix }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=base-${{ matrix.ocaml.image_suffix }}-${{ matrix.arch }}
 
-  build-dev-arm64:
-    needs: [changes, build-base-arm64]
+  # ============================================================================
+  # Build Dev Images (matrix: arch × ocaml version)
+  # ============================================================================
+  build-dev:
+    needs: [changes, build-base]
     if: |
       always() &&
-      (needs.build-base-arm64.result == 'success' ||
-       needs.build-base-arm64.result == 'skipped') &&
+      (needs.build-base.result == 'success' ||
+       needs.build-base.result == 'skipped') &&
       (needs.changes.outputs.dev == 'true' ||
        needs.changes.outputs.base == 'true' ||
        startsWith(github.ref, 'refs/tags/') ||
        github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+        ocaml:
+          - { version: "5.4.0", enable_tsan: "true", extra_profile: "runtime_events_tools", image_suffix: "5.4" }
+          - { version: "4.14.2", enable_tsan: "false", extra_profile: "", image_suffix: "4.14" }
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+            platform: linux/amd64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            platform: linux/arm64
 
     steps:
       - name: Checkout
@@ -251,38 +173,44 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push dev image (arm64)
+      - name: Build and push dev image
         uses: docker/build-push-action@v6
         with:
           context: ./dev
           file: ./dev/Dockerfile
-          platforms: linux/arm64
+          platforms: ${{ matrix.platform }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-dev:latest-arm64
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.ocaml.image_suffix }}-dev:latest-${{ matrix.arch }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.ocaml.image_suffix }}-dev:latest-${{ matrix.arch }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            BASE_IMAGE=${{ env.GHCR_REPO }}-base:latest-arm64
-          cache-from: type=gha,scope=dev-arm64
-          cache-to: type=gha,mode=max,scope=dev-arm64
+            BASE_IMAGE=ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.ocaml.image_suffix }}-base:latest-${{ matrix.arch }}
+            OCAML_VERSION=${{ matrix.ocaml.version }}
+            ENABLE_TSAN=${{ matrix.ocaml.enable_tsan }}
+            OCAML_EXTRA_PROFILE=${{ matrix.ocaml.extra_profile }}
+          cache-from: type=gha,scope=dev-${{ matrix.ocaml.image_suffix }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=dev-${{ matrix.ocaml.image_suffix }}-${{ matrix.arch }}
 
   # ============================================================================
-  # Fan-in: Merge Base Image Tags into Multi-Arch Manifest
+  # Merge Base Image Tags into Multi-Arch Manifests
   # ============================================================================
   merge-base:
-    needs: [build-base-amd64, build-base-arm64]
+    needs: [build-base]
     if: |
       always() &&
-      needs.build-base-amd64.result == 'success' &&
-      needs.build-base-arm64.result == 'success' &&
+      needs.build-base.result == 'success' &&
       github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      matrix:
+        image_suffix: ["5.4", "4.14"]
 
     steps:
       - name: Set up Docker Buildx
@@ -303,54 +231,57 @@ jobs:
 
       - name: Create and push multi-arch manifest (GHCR)
         run: |
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}-base:latest \
-            ${{ env.GHCR_REPO }}-base:latest-amd64 \
-            ${{ env.GHCR_REPO }}-base:latest-arm64
+          docker buildx imagetools create -t ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest \
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest-amd64 \
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.GHCR_REPO }}-base:${VERSION} \
-              ${{ env.GHCR_REPO }}-base:latest-amd64 \
-              ${{ env.GHCR_REPO }}-base:latest-arm64
+            docker buildx imagetools create -t ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:${VERSION} \
+              ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest-amd64 \
+              ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest-arm64
           fi
 
       - name: Create and push multi-arch manifest (Docker Hub)
         run: |
-          docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-base:latest \
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64 \
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
+          docker buildx imagetools create -t ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest \
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest-amd64 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-base:${VERSION} \
-              ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64 \
-              ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
+            docker buildx imagetools create -t ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:${VERSION} \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest-amd64 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest-arm64
           fi
 
       - name: Verify multi-arch manifest
         run: |
-          echo "=== GHCR Base Image ==="
-          docker buildx imagetools inspect ${{ env.GHCR_REPO }}-base:latest
+          echo "=== GHCR Base Image (ocaml-${{ matrix.image_suffix }}) ==="
+          docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-base:latest
           echo ""
-          echo "=== Docker Hub Base Image ==="
-          docker buildx imagetools inspect ${{ env.DOCKER_HUB_REPO }}-base:latest
+          echo "=== Docker Hub Base Image (ocaml-${{ matrix.image_suffix }}) ==="
+          docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-base:latest
 
   # ============================================================================
-  # Fan-in: Merge Dev Image Tags into Multi-Arch Manifest
+  # Merge Dev Image Tags into Multi-Arch Manifests
   # ============================================================================
   merge-dev:
-    needs: [build-dev-amd64, build-dev-arm64]
+    needs: [build-dev]
     if: |
       always() &&
-      needs.build-dev-amd64.result == 'success' &&
-      needs.build-dev-arm64.result == 'success' &&
+      needs.build-dev.result == 'success' &&
       github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      matrix:
+        image_suffix: ["5.4", "4.14"]
 
     steps:
       - name: Set up Docker Buildx
@@ -371,36 +302,36 @@ jobs:
 
       - name: Create and push multi-arch manifest (GHCR)
         run: |
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}-dev:latest \
-            ${{ env.GHCR_REPO }}-dev:latest-amd64 \
-            ${{ env.GHCR_REPO }}-dev:latest-arm64
+          docker buildx imagetools create -t ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest \
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest-amd64 \
+            ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.GHCR_REPO }}-dev:${VERSION} \
-              ${{ env.GHCR_REPO }}-dev:latest-amd64 \
-              ${{ env.GHCR_REPO }}-dev:latest-arm64
+            docker buildx imagetools create -t ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:${VERSION} \
+              ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest-amd64 \
+              ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest-arm64
           fi
 
       - name: Create and push multi-arch manifest (Docker Hub)
         run: |
-          docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-dev:latest \
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64 \
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+          docker buildx imagetools create -t ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest \
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest-amd64 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-dev:${VERSION} \
-              ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64 \
-              ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+            docker buildx imagetools create -t ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:${VERSION} \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest-amd64 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest-arm64
           fi
 
       - name: Verify multi-arch manifest
         run: |
-          echo "=== GHCR Dev Image ==="
-          docker buildx imagetools inspect ${{ env.GHCR_REPO }}-dev:latest
+          echo "=== GHCR Dev Image (ocaml-${{ matrix.image_suffix }}) ==="
+          docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/ocaml-${{ matrix.image_suffix }}-dev:latest
           echo ""
-          echo "=== Docker Hub Dev Image ==="
-          docker buildx imagetools inspect ${{ env.DOCKER_HUB_REPO }}-dev:latest
+          echo "=== Docker Hub Dev Image (ocaml-${{ matrix.image_suffix }}) ==="
+          docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-${{ matrix.image_suffix }}-dev:latest

@@ -82,8 +82,13 @@ devcontainer exec --workspace-folder . dune fmt
 ### Switching OCaml Versions
 
 ```bash
-# Inside any devcontainer exec command
+# Switch between compilers in the 5.4 image
 devcontainer exec --workspace-folder . bash -c 'opam switch 5.4.0+tsan && eval $(opam env) && dune build'
+```
+
+To use the OCaml 4.14 image instead:
+```bash
+devcontainer up --workspace-folder . --config .devcontainer-4.14/devcontainer.json
 ```
 
 ## Shell Alias (Optional)

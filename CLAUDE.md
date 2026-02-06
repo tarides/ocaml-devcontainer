@@ -4,39 +4,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an **OCaml 5.4 DevContainer Project** - a production-ready development environment for OCaml that runs in Docker containers. Designed for tutorials and training sessions where zero-friction onboarding is critical.
+This is an **OCaml DevContainer Project** - a production-ready development environment for OCaml that runs in Docker containers. Designed for tutorials and training sessions where zero-friction onboarding is critical.
 
-**Current state:** Planning phase. The detailed implementation plan is in `ocaml-devcontainer-plan.md`.
+Supports **OCaml 5.4** (with ThreadSanitizer) and **OCaml 4.14** (LTS).
 
 ## Image Architecture
 
-Two-layer Docker image strategy for fast iteration:
+Two-layer Docker image strategy for fast iteration, built for each supported OCaml version:
 
 ```
-ocaml-5.4-base (compilers, ~35-50 min build, rebuild rare)
-    └── ocaml-5.4-dev (tools, ~15-20 min build, rebuild when tools update)
+ocaml-5.4-base (5.4.0 + 5.4.0+tsan compilers, ~35-50 min build)
+    └── ocaml-5.4-dev (tools, ~15-20 min build)
+        └── [tutorial-specific] (optional, user-created, seconds to build)
+
+ocaml-4.14-base (4.14.2 compiler, ~20-30 min build)
+    └── ocaml-4.14-dev (tools, ~15-20 min build)
         └── [tutorial-specific] (optional, user-created, seconds to build)
 ```
 
-The base image creates both OCaml switches (compilers only). The dev image installs **identical tools** in both switches:
+The Dockerfiles are parameterized with build ARGs (`OCAML_VERSION`, `ENABLE_TSAN`, `OCAML_EXTRA_PROFILE`).
+
+**OCaml 5.4 image** switches:
 - `5.4.0` - Standard compiler (default)
 - `5.4.0+tsan` - ThreadSanitizer variant for race detection
+
+**OCaml 4.14 image** switches:
+- `4.14.2` - Single switch (no TSan support on 4.x)
 
 ## Build Commands
 
 ```bash
-# IMPORTANT: TSan requires reduced ASLR entropy on the build host
-sudo sysctl -w vm.mmap_rnd_bits=28
-
-# Local build (for customization)
+# OCaml 5.4 (default — includes TSan switch)
+sudo sysctl -w vm.mmap_rnd_bits=28  # Required for TSan
 docker build -t ocaml-5.4-base base/
-docker build -t ocaml-5.4-dev dev/
+docker build --build-arg BASE_IMAGE=ocaml-5.4-base -t ocaml-5.4-dev dev/
+
+# OCaml 4.14
+docker build --build-arg OCAML_VERSION=4.14.2 --build-arg ENABLE_TSAN=false \
+  -t ocaml-4.14-base base/
+docker build --build-arg BASE_IMAGE=ocaml-4.14-base \
+  --build-arg OCAML_VERSION=4.14.2 --build-arg ENABLE_TSAN=false \
+  --build-arg OCAML_EXTRA_PROFILE="" -t ocaml-4.14-dev dev/
 
 # Start container with pre-built images
 devcontainer up --workspace-folder .
 ```
 
-**Note:** The `vm.mmap_rnd_bits=28` setting is required for building the TSan switch.
+**Note:** The `vm.mmap_rnd_bits=28` setting is required for building the TSan switch (5.4 only).
 Without it, TSan compilation fails with "unexpected memory mapping" errors.
 See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 
@@ -54,7 +68,7 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-claude.sh     # Claude Code installation
 ```
 
-CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
+CI runs matrix tests: `[5.4.0, 5.4.0+tsan, 4.14.2] × [amd64, arm64]`
 
 ## Key Design Decisions
 
@@ -67,13 +81,14 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 ## Project Structure
 
 ```
-base/                     # Dockerfile for ocaml-5.4-base (compilers only)
-dev/                      # Dockerfile for ocaml-5.4-dev (full dev tools)
-.devcontainer/            # Uses pre-built images (fast startup)
-.devcontainer-from-scratch/ # Builds locally (for customization)
-test/                     # Integration test scripts
-examples/                 # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
-docs/                     # Setup guides for different workflows
+base/                       # Parameterized Dockerfile for base images (compilers)
+dev/                        # Parameterized Dockerfile for dev images (tools)
+.devcontainer/              # OCaml 5.4 pre-built image config (default)
+.devcontainer-4.14/         # OCaml 4.14 pre-built image config
+.devcontainer-from-scratch/ # Local build config (customizable)
+test/                       # Integration test scripts
+examples/                   # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
+docs/                       # Setup guides for different workflows
 ```
 
 ## Configuration Placeholders
@@ -84,16 +99,11 @@ Before deployment, set up GitHub repository secrets:
 
 ## Package Installation Pattern
 
-Tools are defined once and installed identically in both switches:
+Platform tools (dune, LSP, merlin, utop, odoc) are installed in `base/Dockerfile` at switch creation time. Additional tools are installed in `dev/Dockerfile` using build ARGs for version-specific packages:
 
 ```dockerfile
-ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
-ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
-ENV OCAML_LIBS="core base"
-ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
-ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"
-
-RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \
-    opam install --switch=5.4.0+tsan -y $OCAML_TOOLS && \
-    opam clean -a
+ARG OCAML_EXTRA_PROFILE="runtime_events_tools"  # empty for 4.14
+ENV OCAML_PROFILE="landmarks memtrace ${OCAML_EXTRA_PROFILE} printbox"
 ```
+
+`runtime_events_tools` is OCaml 5.x-only and excluded from 4.14 builds.

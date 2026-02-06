@@ -17,20 +17,20 @@ env:
 
 jobs:
   # ============================================================================
-  # Test OCaml compiler and tools (matrix: switch × arch)
+  # Test OCaml compiler and tools (matrix: image × switch)
   # ============================================================================
   test-ocaml:
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
-        runner: [ubuntu-latest]
-        # Uncomment to add ARM runners:
-        # runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - { image: "ocaml-5.4-dev", switch: "5.4.0", runner: ubuntu-latest }
+          - { image: "ocaml-5.4-dev", switch: "5.4.0+tsan", runner: ubuntu-latest }
+          - { image: "ocaml-4.14-dev", switch: "4.14.2", runner: ubuntu-latest }
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:
@@ -42,17 +42,20 @@ jobs:
           ./test/test-ocaml.sh ${{ matrix.switch }}
 
   # ============================================================================
-  # Test LSP server (matrix: switch)
+  # Test LSP server (matrix: image × switch)
   # ============================================================================
   test-lsp:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
+        include:
+          - { image: "ocaml-5.4-dev", switch: "5.4.0" }
+          - { image: "ocaml-5.4-dev", switch: "5.4.0+tsan" }
+          - { image: "ocaml-4.14-dev", switch: "4.14.2" }
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:
@@ -64,17 +67,20 @@ jobs:
           ./test/test-lsp.sh ${{ matrix.switch }}
 
   # ============================================================================
-  # Test profiling tools (matrix: switch)
+  # Test profiling tools (matrix: image × switch)
   # ============================================================================
   test-profiling:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
+        include:
+          - { image: "ocaml-5.4-dev", switch: "5.4.0" }
+          - { image: "ocaml-5.4-dev", switch: "5.4.0+tsan" }
+          - { image: "ocaml-4.14-dev", switch: "4.14.2" }
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:
@@ -86,7 +92,7 @@ jobs:
           ./test/test-profiling.sh ${{ matrix.switch }}
 
   # ============================================================================
-  # Test dune package management
+  # Test dune package management (5.4 only — dune pkg is a 5.x feature)
   # ============================================================================
   test-dune-pkg:
     runs-on: ubuntu-latest
@@ -122,9 +128,13 @@ jobs:
 
   test-emacs:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ocaml-5.4-dev", "ocaml-4.14-dev"]
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:
@@ -137,9 +147,13 @@ jobs:
 
   test-neovim:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ocaml-5.4-dev", "ocaml-4.14-dev"]
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:
@@ -152,9 +166,13 @@ jobs:
 
   test-claude:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ocaml-5.4-dev", "ocaml-4.14-dev"]
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-5.4-dev:latest
+      image: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
       options: --user root
 
     steps:

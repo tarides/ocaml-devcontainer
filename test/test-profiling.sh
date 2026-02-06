@@ -80,29 +80,34 @@ else
     echo "WARN: memtrace trace file not generated (may need specific setup)"
 fi
 
-# Test 3: olly runtime events
+# Test 3: olly runtime events (OCaml 5.x only)
 echo ""
 echo "--- Test 3: olly runtime events ---"
-cat > olly_test.ml << 'EOF'
+MAJOR_VERSION=$(ocaml -vnum | cut -d. -f1)
+if [ "$MAJOR_VERSION" -ge 5 ]; then
+    cat > olly_test.ml << 'EOF'
 let () =
   let data = Array.init 100000 (fun i -> i * 2) in
   Array.iter (fun x -> ignore (x + 1)) data
 EOF
 
-cat > dune << 'EOF'
+    cat > dune << 'EOF'
 (executable
  (name olly_test))
 EOF
 
-dune build olly_test.exe
+    dune build olly_test.exe
 
-# runtime_events_tools provides ocaml-runtime-tracer
-if command -v ocaml-runtime-tracer &> /dev/null; then
-    ocaml-runtime-tracer trace dune exec ./olly_test.exe -- 2>&1 || echo "WARN: ocaml-runtime-tracer may require specific runtime support"
-    echo "PASS: ocaml-runtime-tracer command available"
+    # runtime_events_tools provides ocaml-runtime-tracer
+    if command -v ocaml-runtime-tracer &> /dev/null; then
+        ocaml-runtime-tracer trace dune exec ./olly_test.exe -- 2>&1 || echo "WARN: ocaml-runtime-tracer may require specific runtime support"
+        echo "PASS: ocaml-runtime-tracer command available"
+    else
+        echo "FAIL: ocaml-runtime-tracer not found"
+        exit 1
+    fi
 else
-    echo "FAIL: ocaml-runtime-tracer not found"
-    exit 1
+    echo "SKIP: runtime events tools not available on OCaml 4.x"
 fi
 
 # Cleanup

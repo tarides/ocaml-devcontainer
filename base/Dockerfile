@@ -1,11 +1,18 @@
-# OCaml 5.4 Base Image
-# Contains: OCaml compilers (5.4.0, 5.4.0+tsan), system tools, editors
+# OCaml Base Image
+# Contains: OCaml compiler(s), system tools, editors
 # Build time: ~35-50 min (multi-arch)
+#
+# Build args:
+#   OCAML_VERSION  - compiler version (default: 5.4.0)
+#   ENABLE_TSAN    - build TSan switch (default: true, requires 5.x)
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
+ARG OCAML_VERSION=5.4.0
+ARG ENABLE_TSAN=true
+
 LABEL org.opencontainers.image.source="https://github.com/tarides/ocaml-devcontainer"
-LABEL org.opencontainers.image.description="OCaml 5.4 development base image"
+LABEL org.opencontainers.image.description="OCaml ${OCAML_VERSION} development base image"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Avoid interactive prompts during package installation
@@ -92,19 +99,21 @@ RUN opam init --disable-sandboxing --auto-setup --yes
 # OCaml platform tools - installed at switch creation time in both switches
 ENV OCAML_PLATFORM="dune ocaml-lsp-server merlin utop odoc"
 
-# Create standard OCaml 5.4.0 switch and install platform tools
-RUN opam switch create 5.4.0 ocaml-base-compiler.5.4.0 --yes && \
+# Create main OCaml switch and install platform tools
+RUN opam switch create ${OCAML_VERSION} ocaml-base-compiler.${OCAML_VERSION} --yes && \
     opam install -y ${OCAML_PLATFORM}
 
 # Create ThreadSanitizer switch for race detection and install platform tools
 # IMPORTANT: Building TSan requires reduced ASLR entropy on the host:
 #   sudo sysctl -w vm.mmap_rnd_bits=28
 # See: https://github.com/google/sanitizers/issues/1716
-RUN opam switch create 5.4.0+tsan ocaml-variants.5.4.0+options ocaml-option-tsan --yes && \
-    opam install -y ${OCAML_PLATFORM}
+RUN if [ "${ENABLE_TSAN}" = "true" ]; then \
+        opam switch create ${OCAML_VERSION}+tsan ocaml-variants.${OCAML_VERSION}+options ocaml-option-tsan --yes && \
+        opam install -y ${OCAML_PLATFORM}; \
+    fi
 
 # Set default switch
-RUN opam switch set 5.4.0
+RUN opam switch set ${OCAML_VERSION}
 
 # ============================================================================
 # Shell Configuration

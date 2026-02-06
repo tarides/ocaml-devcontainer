@@ -19,18 +19,19 @@ cd "$TEMP_DIR"
 echo ""
 echo "--- Test 1: Create project with pkg dependencies ---"
 cat > dune-project << 'EOF'
-(lang dune 3.17)
+(lang dune 3.20)
 (name pkg_test)
 
 (package
  (name pkg_test)
+ (allow_empty)
  (depends
   (ocaml (>= 5.4))
   (cmdliner (>= 1.2))))
 EOF
 
 cat > dune-workspace << 'EOF'
-(lang dune 3.17)
+(lang dune 3.20)
 (pkg enabled)
 EOF
 
@@ -41,8 +42,9 @@ cat > dune << 'EOF'
 EOF
 
 cat > main.ml << 'EOF'
-open Cmdliner
-let () = print_endline "dune pkg test"
+let () =
+  ignore (Cmdliner.Cmd.info "test");
+  print_endline "dune pkg test"
 EOF
 
 echo "PASS: Project created"

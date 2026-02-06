@@ -48,7 +48,6 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-lsp.sh        # Full LSP protocol testing
 ./test/test-profiling.sh  # landmarks, memtrace, olly, bisect_ppx
 ./test/test-dune-pkg.sh   # Dune package management workflow
-./test/test-mcp.sh        # MCP server verification
 ./test/test-vscode.sh     # VS Code devcontainer integration
 ./test/test-neovim.sh     # Neovim exec pathway + LSP
 ./test/test-emacs.sh      # Emacs TRAMP + eglot integration
@@ -61,7 +60,6 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 
 - **Primary workflow:** `devcontainer exec` from host (works with any editor)
 - **Package management:** Support both opam (traditional) and dune pkg (modern)
-- **MCP integration:** ocaml-mcp-server (local) pre-installed, odoc-llm (remote) documented
 - **Base image:** Microsoft devcontainers/base (not ocaml/opam) for DevContainer Feature support
 - **Registries:** Publish to both Docker Hub and GHCR
 - **Claude Code:** Installed via DevContainer Feature
@@ -93,8 +91,7 @@ ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
 ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
 ENV OCAML_LIBS="core base"
 ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
-ENV OCAML_MCP="ocaml-mcp-server"
-ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE $OCAML_MCP"
+ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"
 
 RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \
     opam install --switch=5.4.0+tsan -y $OCAML_TOOLS && \

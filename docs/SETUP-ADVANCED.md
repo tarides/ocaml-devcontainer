@@ -59,31 +59,6 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 ```
 
-## MCP Integration
-
-### ocaml-mcp (Local)
-
-Pre-installed in the container. Provides project-local tooling for AI assistants.
-
-Tools available:
-- `dune/build` - Build the project
-- `dune/test` - Run tests
-- `merlin/type-at-position` - Get type information
-- `merlin/complete` - Code completion
-
-### odoc-llm (Remote)
-
-For ecosystem-wide package search. Add to your MCP configuration:
-
-```bash
-claude mcp add -t sse ocaml-ecosystem http://dill.caelum.ci.dev:8000/sse
-```
-
-Available tools:
-- `search_packages` - Semantic search across opam packages
-- `search_modules` - Find modules within packages
-- `search_types` - Type-based search
-
 ## Local Image Building
 
 For customization or offline use:

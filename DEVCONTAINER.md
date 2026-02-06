@@ -41,7 +41,6 @@ devcontainer exec --workspace-folder . claude
 | **Profiling** | landmarks, memtrace, olly |
 | **Debugging** | gdb, lldb, valgrind, rr, perf |
 | **Editors** | vim, emacs, Claude Code |
-| **AI Integration** | ocaml-mcp-server (MCP server) |
 
 ## Common Commands
 
@@ -68,4 +67,4 @@ eval $(opam env)
 - [GitHub Codespaces](docs/SETUP-CODESPACES.md) - Zero-install cloud environment
 - [DevContainer Exec](docs/SETUP-DEVCONTAINER-EXEC.md) - Primary local workflow
 - [VS Code](docs/SETUP-VSCODE.md) - Native VS Code integration
-- [Advanced](docs/SETUP-ADVANCED.md) - TRAMP, Neovim plugins, MCP, customization
+- [Advanced](docs/SETUP-ADVANCED.md) - TRAMP, Neovim plugins, customization

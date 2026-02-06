@@ -66,7 +66,7 @@ For **tutorials and training sessions**, this setup friction is a barrier:
 | Claude Code | Include via DevContainer Feature (only editor inside container) |
 | Architectures | Multi-arch (amd64 + arm64), QEMU fallback if no native ARM runners |
 | Hosting | New GitHub repository (organization) |
-| MCP support | Both: ocaml-mcp-server (local) in dev image + odoc-llm (remote) documented |
+| MCP support | odoc-llm (remote) documented |
 
 ## Overview
 
@@ -93,7 +93,6 @@ ocaml-devcontainer/
 │   ├── test-lsp.sh                # Full LSP protocol tests (both switches)
 │   ├── test-profiling.sh          # landmarks, memtrace, olly, bisect_ppx
 │   ├── test-dune-pkg.sh           # Dune package management workflow
-│   ├── test-mcp.sh                # MCP server tests (ocaml-mcp local)
 │   ├── test-vscode.sh             # VS Code devcontainer integration
 │   ├── test-neovim.sh             # Neovim connection pathways
 │   ├── test-emacs.sh              # Emacs TRAMP + eglot integration
@@ -173,9 +172,6 @@ This prevents users who SSH in from getting a "naked" editor without LSP.
 - runtime_events_tools (olly - runtime events / GC latency)
 - printbox (pretty-print data structures)
 
-*MCP (Model Context Protocol):*
-- ocaml-mcp-server (local MCP server for AI agent integration)
-
 **Dockerfile pattern for identical switches:**
 ```dockerfile
 # Define tools once, install in both switches
@@ -183,8 +179,7 @@ ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
 ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
 ENV OCAML_LIBS="core base"
 ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
-ENV OCAML_MCP="ocaml-mcp-server"
-ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE $OCAML_MCP"
+ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"
 
 RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \
     opam install --switch=5.4.0+tsan -y $OCAML_TOOLS && \
@@ -335,14 +330,7 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
   - dune tools exec ocamllsp/ocamlformat
   - Verify both package management workflows work
 
-  **5. test-mcp** (matrix: switch)
-  ```yaml
-  matrix:
-    switch: [5.4.0, 5.4.0+tsan]
-  ```
-  - ocaml-mcp server startup and tool invocation
-
-  **6. test-editors** (matrix: editor)
+  **5. test-editors** (matrix: editor)
   ```yaml
   matrix:
     editor: [vscode, neovim, emacs, claude]
@@ -410,15 +398,6 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 6. Run `dune tools exec ocamlformat -- --version` - verify works
 7. Test `eval $(dune tools env)` sets PATH correctly
 
-#### test-mcp.sh (ocaml-mcp local server)
-1. Verify ocaml-mcp is installed: `ocaml-mcp --version`
-2. Start MCP server: `ocaml-mcp serve`
-3. Send MCP `initialize` request via JSON-RPC
-4. List available tools: verify dune, merlin tools present
-5. Test `dune/build` tool invocation
-6. Test `merlin/type-at-position` tool invocation
-7. Shutdown cleanly
-
 ### 5. Documentation
 
 **DEVCONTAINER.md** will cover:
@@ -429,9 +408,6 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
   - Neovim: `devcontainer exec --workspace-folder . nvim`
   - Emacs: TRAMP method `/docker:<container>:/path`
   - Claude Code: Pre-installed via feature
-- MCP integration (AI assistants):
-  - ocaml-mcp: pre-installed, local project tooling
-  - odoc-llm: optional, ecosystem-wide package search
 - Switching between OCaml versions
 - Troubleshooting common issues
 
@@ -478,7 +454,6 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 9. Write test scripts:
    - `test-ocaml.sh` - compiler + tools verification (both switches)
    - `test-lsp.sh` - full LSP protocol testing
-   - `test-mcp.sh` - MCP server verification (ocaml-mcp)
    - `test-vscode.sh` - devcontainer CLI integration
    - `test-neovim.sh` - exec pathway + LSP connection
    - `test-emacs.sh` - TRAMP simulation + LSP
@@ -538,12 +513,6 @@ After implementation, verify:
 23. `dune build` with `(pkg enabled)` works
 24. `dune tools exec ocamllsp` runs correctly
 25. `dune tools env` sets up PATH
-
-### MCP verification
-26. ocaml-mcp installed: `ocaml-mcp --version` works
-27. ocaml-mcp serves: `ocaml-mcp serve` starts and responds to JSON-RPC
-28. MCP tools work: dune build via MCP, merlin type queries via MCP
-29. Document odoc-llm connection: `claude mcp add -t sse ...` works
 
 ### Tutorial author workflow
 30. Create minimal tutorial Dockerfile (FROM ocaml-5.4-dev)
@@ -605,7 +574,6 @@ The images will be published to:
 │  • Testing: ounit2, ppx_inline_test, ppx_expect, qcheck │
 │  • Coverage: bisect_ppx                                 │
 │  • Profiling: landmarks, memtrace, olly                 │
-│  • MCP: ocaml-mcp-server (local AI agent integration)   │
 │  • Libraries: core, base                                │
 │  (identical in both switches)                           │
 │  • Claude Code (via DevContainer Feature)               │
@@ -752,7 +720,6 @@ Could provide both via:
 - LSP server (ocaml-lsp-server)
 - Build tools (dune)
 - Development tools (merlin, ocamlformat, utop)
-- MCP server (ocaml-mcp-server for AI agent integration)
 - Claude Code (via DevContainer Feature)
 
 ### Documentation approach:
@@ -780,84 +747,6 @@ devcontainer exec --workspace-folder . dune build
 2. **Simple:** No complex host-container LSP bridging
 3. **Flexible:** Users can still use native integrations if preferred
 4. **Tutorial-friendly:** One command pattern to teach
-
----
-
-## MCP (Model Context Protocol) Integration
-
-**Purpose:** Give AI coding assistants (Claude Code, etc.) deep understanding of OCaml projects and ecosystem.
-
-### Two Complementary MCP Servers
-
-| MCP Server | Scope | Transport | Use Case |
-|------------|-------|-----------|----------|
-| **ocaml-mcp** (Thibault Mattio) | Local project | stdio | "Build this", "What's the type here?" |
-| **odoc-llm** (Ludlam/Jaffer) | Entire opam ecosystem | SSE (remote) | "What package handles HTTP?" |
-
-### ocaml-mcp (Local - included in dev image)
-
-**Repository:** https://github.com/tmattio/ocaml-mcp
-
-**Tools provided:**
-- Dune RPC integration (build status, run targets)
-- Merlin integration (type info at position)
-- Expression evaluation in project context
-- Module signature extraction
-- Project structure analysis
-- Test execution
-
-**Installation:** Pre-installed in `ocaml-5.4-dev` image via opam.
-
-### odoc-llm (Remote - hosted service)
-
-**Repository:** https://github.com/sadiqj/odoc-llm/
-
-**Tools provided:**
-- Package search (semantic search across all opam packages)
-- Module search (find modules within packages)
-- Type-based search (via sherlodoc)
-
-**Architecture:** Uses embeddings from documentation generated by `ocaml-docs-ci` for every package in opam-repository. Ranks by embedding similarity + popularity.
-
-**Demo server:** `dill.caelum.ci.dev:8000/sse`
-
-**Configuration:** Users add this to their MCP config:
-```bash
-claude mcp add -t sse ocaml-ecosystem http://dill.caelum.ci.dev:8000/sse
-```
-
-### Integration in DevContainer
-
-**In devcontainer.json:**
-```json
-{
-  "postStartCommand": "eval $(opam env) && ocaml-mcp serve &",
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "mcp.servers": {
-          "ocaml-local": {
-            "command": "ocaml-mcp",
-            "args": ["serve"]
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-**For Claude Code:** Document in `docs/SETUP-ADVANCED.md` how to configure both MCP servers.
-
-### Why Both?
-
-| Question | MCP Server |
-|----------|------------|
-| "What package handles HTTP clients?" | odoc-llm (ecosystem search) |
-| "What's the type of this expression?" | ocaml-mcp (local tooling) |
-| "Show me packages similar to lwt" | odoc-llm |
-| "Build and run my tests" | ocaml-mcp |
-| "What modules does this package export?" | Either (local or ecosystem) |
 
 ---
 

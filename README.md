@@ -48,7 +48,7 @@ devcontainer exec --workspace-folder . dune build
 | [docs/SETUP-CODESPACES.md](docs/SETUP-CODESPACES.md) | GitHub Codespaces setup |
 | [docs/SETUP-DEVCONTAINER-EXEC.md](docs/SETUP-DEVCONTAINER-EXEC.md) | Primary local workflow |
 | [docs/SETUP-VSCODE.md](docs/SETUP-VSCODE.md) | VS Code integration |
-| [docs/SETUP-ADVANCED.md](docs/SETUP-ADVANCED.md) | TRAMP, MCP, customization |
+| [docs/SETUP-ADVANCED.md](docs/SETUP-ADVANCED.md) | TRAMP, Neovim, customization |
 
 ## OCaml Switches
 

@@ -9,6 +9,11 @@ LABEL org.opencontainers.image.source="https://github.com/tarides/ocaml-devconta
 LABEL org.opencontainers.image.description="OCaml 5.4 full development environment"
 LABEL org.opencontainers.image.licenses="MIT"
 
+# Limit opam parallelism to control memory usage during builds
+# Override with: docker build --build-arg OPAMJOBS=2 ...
+ARG OPAMJOBS=""
+ENV OPAMJOBS=${OPAMJOBS}
+
 # Switch to vscode user for opam operations
 USER vscode
 WORKDIR /home/vscode
@@ -19,9 +24,9 @@ WORKDIR /home/vscode
 
 # Define tools once - installed identically in both switches
 ENV OCAML_BUILD="ocamlformat"
-ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck bisect_ppx"
+ENV OCAML_TEST="ounit2 ppx_inline_test ppx_expect qcheck"
 ENV OCAML_LIBS="core base"
-ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
+ENV OCAML_PROFILE="landmarks memtrace runtime_events_tools printbox"
 
 # Combined toolset
 ENV OCAML_TOOLS="${OCAML_BUILD} ${OCAML_TEST} ${OCAML_LIBS} ${OCAML_PROFILE}"

@@ -1,4 +1,4 @@
-# OCaml 5.4 DevContainer
+# OCaml DevContainer
 
 Quick start guide for the OCaml development environment.
 

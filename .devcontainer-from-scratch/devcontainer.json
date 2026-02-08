@@ -1,5 +1,5 @@
 {
-  "name": "OCaml 5.4 Development (Local Build)",
+  "name": "OCaml Development (Local Build)",
 
   "build": {
     "dockerfile": "../dev/Dockerfile",

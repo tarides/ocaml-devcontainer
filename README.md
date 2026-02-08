@@ -1,4 +1,4 @@
-# OCaml 5.4 DevContainer
+# OCaml DevContainer
 
 Production-ready OCaml development environment for VS Code, Codespaces, and any editor.
 

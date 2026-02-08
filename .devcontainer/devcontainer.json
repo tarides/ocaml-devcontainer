@@ -1,5 +1,5 @@
 {
-  "name": "OCaml 5.4 Development",
+  "name": "OCaml Development",
   // Pre-built image from Docker Hub. Also available on GHCR:
   // ghcr.io/tarides/ocaml-devcontainer:latest
   "image": "cuihtlauac/ocaml-devcontainer:latest",

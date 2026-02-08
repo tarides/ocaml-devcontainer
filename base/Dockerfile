@@ -15,7 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # System Dependencies
 # ============================================================================
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     # Build essentials
     build-essential \
     m4 \

@@ -13,6 +13,9 @@ on:
     paths:
       - 'base/**'
       - 'dev/**'
+  schedule:
+    # Weekly rebuild to pick up security patches
+    - cron: '0 6 * * 1'
   workflow_dispatch:
     inputs:
       force_base_build:
@@ -56,7 +59,8 @@ jobs:
     if: |
       needs.changes.outputs.base == 'true' ||
       github.event.inputs.force_base_build == 'true' ||
-      startsWith(github.ref, 'refs/tags/')
+      startsWith(github.ref, 'refs/tags/') ||
+      github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -111,7 +115,8 @@ jobs:
     if: |
       needs.changes.outputs.base == 'true' ||
       github.event.inputs.force_base_build == 'true' ||
-      startsWith(github.ref, 'refs/tags/')
+      startsWith(github.ref, 'refs/tags/') ||
+      github.event_name == 'schedule'
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -170,7 +175,8 @@ jobs:
       (needs.changes.outputs.dev == 'true' ||
        needs.changes.outputs.base == 'true' ||
        startsWith(github.ref, 'refs/tags/') ||
-       github.event_name == 'workflow_dispatch')
+       github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'schedule')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -225,7 +231,8 @@ jobs:
       (needs.changes.outputs.dev == 'true' ||
        needs.changes.outputs.base == 'true' ||
        startsWith(github.ref, 'refs/tags/') ||
-       github.event_name == 'workflow_dispatch')
+       github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'schedule')
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read

@@ -2,6 +2,10 @@
 
 Production-ready OCaml development environment for VS Code, Codespaces, and any editor.
 
+[![Build](https://github.com/tarides/ocaml-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/tarides/ocaml-devcontainer/actions/workflows/build-push.yml)
+[![Tests](https://github.com/tarides/ocaml-devcontainer/actions/workflows/test.yml/badge.svg)](https://github.com/tarides/ocaml-devcontainer/actions/workflows/test.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/cuihtlauac/ocaml-devcontainer)](https://hub.docker.com/r/cuihtlauac/ocaml-devcontainer)
+
 [![Create a GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
 ## Features

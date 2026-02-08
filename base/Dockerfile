@@ -71,6 +71,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends bpftrace || tru
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Node.js 22 LTS (prevents Claude Code feature from pulling EOL Node 18)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install nushell (not in Ubuntu repos, fetch from GitHub releases)
 RUN ARCH=$(dpkg --print-architecture) && \
     case "$ARCH" in \

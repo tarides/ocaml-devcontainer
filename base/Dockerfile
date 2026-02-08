@@ -71,6 +71,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends bpftrace || tru
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install nushell (not in Ubuntu repos, fetch from GitHub releases)
+RUN ARCH=$(dpkg --print-architecture) && \
+    case "$ARCH" in \
+        amd64) NU_ARCH="x86_64-unknown-linux-musl" ;; \
+        arm64) NU_ARCH="aarch64-unknown-linux-musl" ;; \
+        *) echo "Unsupported architecture: $ARCH"; exit 1 ;; \
+    esac && \
+    NU_VERSION=$(curl -fsSL https://api.github.com/repos/nushell/nushell/releases/latest | grep '"tag_name"' | cut -d'"' -f4) && \
+    curl -fsSL "https://github.com/nushell/nushell/releases/download/${NU_VERSION}/nu-${NU_VERSION}-${NU_ARCH}.tar.gz" | \
+    tar xz -C /usr/local/bin --strip-components=1 "nu-${NU_VERSION}-${NU_ARCH}/nu"
+
 # ============================================================================
 # opam Installation
 # ============================================================================

@@ -49,6 +49,7 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-profiling.sh  # landmarks, memtrace, olly, bisect_ppx
 ./test/test-dune-pkg.sh   # Dune package management workflow
 ./test/test-vscode.sh     # VS Code devcontainer integration
+./test/test-vim.sh        # Vim installation + config
 ./test/test-neovim.sh     # Neovim exec pathway + LSP
 ./test/test-emacs.sh      # Emacs TRAMP + eglot integration
 ./test/test-claude.sh     # Claude Code installation

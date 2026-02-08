@@ -17,9 +17,8 @@ if command -v nvim &> /dev/null; then
     echo "Neovim: $VERSION"
     echo "PASS: Neovim available"
 else
-    echo "WARN: Neovim not installed in container"
-    echo "Neovim can be installed or used via devcontainer exec from host"
-    exit 0
+    echo "FAIL: Neovim not installed"
+    exit 1
 fi
 
 # Test 2: Check Neovim config exists

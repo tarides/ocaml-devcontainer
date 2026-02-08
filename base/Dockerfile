@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     # Editors
     vim \
+    neovim \
     emacs-nox \
     # Debugging & profiling tools
     gdb \

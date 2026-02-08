@@ -1,8 +1,8 @@
 {
   "name": "OCaml 5.4 Development",
   // Pre-built image from Docker Hub. Also available on GHCR:
-  // ghcr.io/tarides/ocaml-5.4-dev:latest
-  "image": "cuihtlauac/ocaml-5.4-dev:latest",
+  // ghcr.io/tarides/ocaml-devcontainer:latest
+  "image": "cuihtlauac/ocaml-devcontainer:latest",
 
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}

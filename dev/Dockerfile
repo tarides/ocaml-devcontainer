@@ -2,7 +2,7 @@
 # Contains: Full OCaml development toolchain
 # Build time: ~15-20 min
 
-ARG BASE_IMAGE=ghcr.io/tarides/ocaml-5.4-base:latest
+ARG BASE_IMAGE=ghcr.io/tarides/ocaml-devcontainer-base:latest
 FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.source="https://github.com/tarides/ocaml-devcontainer"

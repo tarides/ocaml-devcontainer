@@ -5,7 +5,7 @@
     "dockerfile": "../dev/Dockerfile",
     "context": "..",
     "args": {
-      "BASE_IMAGE": "ocaml-5.4-base:latest"
+      "BASE_IMAGE": "ocaml-devcontainer-base:latest"
     }
   },
 

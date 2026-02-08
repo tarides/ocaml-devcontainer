@@ -13,8 +13,8 @@ This is an **OCaml 5.4 DevContainer Project** - a production-ready development e
 Two-layer Docker image strategy for fast iteration:
 
 ```
-ocaml-5.4-base (compilers, ~35-50 min build, rebuild rare)
-    └── ocaml-5.4-dev (tools, ~15-20 min build, rebuild when tools update)
+ocaml-devcontainer-base (compilers, ~35-50 min build, rebuild rare)
+    └── ocaml-devcontainer (tools, ~15-20 min build, rebuild when tools update)
         └── [tutorial-specific] (optional, user-created, seconds to build)
 ```
 
@@ -29,8 +29,8 @@ The base image creates both OCaml switches (compilers only). The dev image insta
 sudo sysctl -w vm.mmap_rnd_bits=28
 
 # Local build (for customization)
-docker build -t ocaml-5.4-base base/
-docker build -t ocaml-5.4-dev dev/
+docker build -t ocaml-devcontainer-base base/
+docker build -t ocaml-devcontainer dev/
 
 # Start container with pre-built images
 devcontainer up --workspace-folder .
@@ -67,8 +67,8 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 ## Project Structure
 
 ```
-base/                     # Dockerfile for ocaml-5.4-base (compilers only)
-dev/                      # Dockerfile for ocaml-5.4-dev (full dev tools)
+base/                     # Dockerfile for ocaml-devcontainer-base (compilers only)
+dev/                      # Dockerfile for ocaml-devcontainer (full dev tools)
 .devcontainer/            # Uses pre-built images (fast startup)
 .devcontainer-from-scratch/ # Builds locally (for customization)
 test/                     # Integration test scripts

@@ -77,11 +77,11 @@ Create a DevContainer setup for OCaml 5.4 and 5.4+tsan that works with VS Code, 
 ```
 ocaml-devcontainer/
 ├── base/
-│   └── Dockerfile                 # ocaml-5.4-base image
+│   └── Dockerfile                 # ocaml-devcontainer-base image
 ├── dev/
-│   └── Dockerfile                 # ocaml-5.4-dev image (FROM base)
+│   └── Dockerfile                 # ocaml-devcontainer image (FROM base)
 ├── .devcontainer/
-│   └── devcontainer.json          # Uses pre-built ocaml-5.4-dev
+│   └── devcontainer.json          # Uses pre-built ocaml-devcontainer
 ├── .devcontainer-from-scratch/
 │   └── devcontainer.json          # Builds dev locally (for customization)
 ├── .github/
@@ -210,7 +210,7 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 ```json
 {
   "name": "OCaml 5.4 Development",
-  "image": "ghcr.io/tarides/ocaml-5.4-dev:latest",
+  "image": "ghcr.io/tarides/ocaml-devcontainer:latest",
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
@@ -275,7 +275,7 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
   1. Set up QEMU (for ARM emulation if no native runners)
   2. Set up Docker Buildx
   3. Login to Docker Hub + GHCR
-  4. Build multi-arch `ocaml-5.4-base` (amd64, arm64)
+  4. Build multi-arch `ocaml-devcontainer-base` (amd64, arm64)
   5. Push to both registries
 - **Caching:** Use GitHub Actions cache (`type=gha`)
 - **Note:** Test ARM runner availability early; fall back to QEMU if needed
@@ -284,8 +284,8 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 - **Needs:** build-base (waits if base is building)
 - **Condition:** Always runs on push to main
 - **Steps:**
-  1. Pull latest `ocaml-5.4-base`
-  2. Build multi-arch `ocaml-5.4-dev`
+  1. Pull latest `ocaml-devcontainer-base`
+  2. Build multi-arch `ocaml-devcontainer`
   3. Push to both registries
 
 #### test.yml
@@ -429,11 +429,11 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 
 ### Phase 2: Dev Image
 3. Write `dev/Dockerfile`:
-   - FROM ocaml-5.4-base
+   - FROM ocaml-devcontainer-base
    - Install identical OCaml toolset in both switches
    - Clean opam cache
 4. Create `.devcontainer/devcontainer.json`:
-   - Uses pre-built ocaml-5.4-dev image
+   - Uses pre-built ocaml-devcontainer image
    - Adds Claude Code via DevContainer Feature
    - Configures Codespaces requirements
 5. Create `.devcontainer-from-scratch/devcontainer.json` for local builds
@@ -478,8 +478,8 @@ some VMs (not most cloud VMs). Document fallback to valgrind if unavailable.
 After implementation, verify:
 
 ### Local testing
-1. `docker build -t ocaml-5.4-base base/` succeeds
-2. `docker build -t ocaml-5.4-dev dev/` succeeds (uses local base)
+1. `docker build -t ocaml-devcontainer-base base/` succeeds
+2. `docker build -t ocaml-devcontainer dev/` succeeds (uses local base)
 3. `devcontainer up --workspace-folder .` starts container
 4. Both switches work: `opam switch 5.4.0 && ocaml -version`
 5. All tools present in both switches (identical)
@@ -515,7 +515,7 @@ After implementation, verify:
 25. `dune tools env` sets up PATH
 
 ### Tutorial author workflow
-30. Create minimal tutorial Dockerfile (FROM ocaml-5.4-dev)
+30. Create minimal tutorial Dockerfile (FROM ocaml-devcontainer)
 31. Add one opam package → verify fast rebuild (<2 min)
 32. Test dune pkg workflow in tutorial context
 
@@ -548,7 +548,7 @@ The images will be published to:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  ocaml-5.4-base                                         │
+│  ocaml-devcontainer-base                                         │
 │  ─────────────────                                      │
 │  • Ubuntu 24.04 + system deps                           │
 │  • opam initialized                                     │
@@ -566,9 +566,9 @@ The images will be published to:
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│  ocaml-5.4-dev                                          │
+│  ocaml-devcontainer                                          │
 │  ─────────────────                                      │
-│  FROM ocaml-5.4-base                                    │
+│  FROM ocaml-devcontainer-base                                    │
 │  • Build: dune, ocaml-lsp-server, merlin, ocamlformat   │
 │  • REPL/Docs: utop, odoc                                │
 │  • Testing: ounit2, ppx_inline_test, ppx_expect, qcheck │
@@ -587,7 +587,7 @@ The images will be published to:
 ┌─────────────────────────────────────────────────────────┐
 │  [tutorial-specific] (optional, user-created)           │
 │  ─────────────────────────────────────                  │
-│  FROM ocaml-5.4-dev                                     │
+│  FROM ocaml-devcontainer                                     │
 │  • Tutorial-specific opam packages                      │
 │  • Exercise files, starter code                         │
 │                                                         │
@@ -600,14 +600,14 @@ The images will be published to:
 
 | Image | Tag | Description |
 |-------|-----|-------------|
-| `ocaml-5.4-base` | `latest`, `5.4.0` | Compilers only |
-| `ocaml-5.4-dev` | `latest`, `5.4.0` | Full development environment |
+| `ocaml-devcontainer-base` | `latest`, `5.4.0` | Compilers only |
+| `ocaml-devcontainer` | `latest`, `5.4.0` | Full development environment |
 
 Both published to:
-- `docker.io/<DOCKER_USERNAME>/ocaml-5.4-base`
-- `docker.io/<DOCKER_USERNAME>/ocaml-5.4-dev`
-- `ghcr.io/tarides/ocaml-5.4-base`
-- `ghcr.io/tarides/ocaml-5.4-dev`
+- `docker.io/<DOCKER_USERNAME>/ocaml-devcontainer-base`
+- `docker.io/<DOCKER_USERNAME>/ocaml-devcontainer`
+- `ghcr.io/tarides/ocaml-devcontainer-base`
+- `ghcr.io/tarides/ocaml-devcontainer`
 
 ### CI/CD Workflow
 
@@ -616,19 +616,19 @@ Both published to:
 jobs:
   build-base:
     # Only runs if base/ changed or manual trigger
-    # Builds and pushes ocaml-5.4-base
+    # Builds and pushes ocaml-devcontainer-base
 
   build-dev:
     needs: build-base  # Wait for base if it's building
     # Always runs
-    # Pulls latest base, builds and pushes ocaml-5.4-dev
+    # Pulls latest base, builds and pushes ocaml-devcontainer
 ```
 
 ### For Tutorial Authors
 
 ```dockerfile
 # Example: my-eio-tutorial/Dockerfile
-FROM ghcr.io/yourorg/ocaml-5.4-dev:latest
+FROM ghcr.io/yourorg/ocaml-devcontainer:latest
 
 # Add tutorial-specific packages (fast, base already has compilers)
 RUN opam install -y eio eio_main
@@ -710,12 +710,12 @@ Could provide both via:
 
 ### What the container provides:
 
-**Base image (ocaml-5.4-base):**
+**Base image (ocaml-devcontainer-base):**
 - OCaml compilers (5.4.0, 5.4.0+tsan)
 - vim, emacs (via apt)
 - opam initialized, shell configured
 
-**Dev image (ocaml-5.4-dev):**
+**Dev image (ocaml-devcontainer):**
 - Everything in base, plus:
 - LSP server (ocaml-lsp-server)
 - Build tools (dune)

@@ -65,10 +65,10 @@ For customization or offline use:
 
 ```bash
 # Build base image (~35-50 minutes)
-docker build -t ocaml-5.4-base base/
+docker build -t ocaml-devcontainer-base base/
 
 # Build dev image (~15-20 minutes)
-docker build -t ocaml-5.4-dev dev/
+docker build -t ocaml-devcontainer dev/
 
 # Use local build
 devcontainer up --workspace-folder . --config .devcontainer-from-scratch/devcontainer.json
@@ -79,7 +79,7 @@ devcontainer up --workspace-folder . --config .devcontainer-from-scratch/devcont
 Create a tutorial-specific image:
 
 ```dockerfile
-FROM ghcr.io/tarides/ocaml-5.4-dev:latest
+FROM ghcr.io/tarides/ocaml-devcontainer:latest
 
 # Add tutorial-specific packages
 RUN opam install -y lwt eio

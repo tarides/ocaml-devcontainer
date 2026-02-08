@@ -86,8 +86,8 @@ To build the Docker images locally:
 sudo sysctl -w vm.mmap_rnd_bits=28
 
 # Build images
-docker build -t ocaml-5.4-base base/
-docker build -t ocaml-5.4-dev dev/
+docker build -t ocaml-devcontainer-base base/
+docker build -t ocaml-devcontainer dev/
 ```
 
 The `vm.mmap_rnd_bits=28` setting is required for the ThreadSanitizer switch to compile.
@@ -98,7 +98,7 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716) f
 This environment is designed for OCaml tutorials and workshops. Create a tutorial-specific image:
 
 ```dockerfile
-FROM ghcr.io/tarides/ocaml-5.4-dev:latest
+FROM ghcr.io/tarides/ocaml-devcontainer:latest
 RUN opam install -y lwt eio  # Add your packages
 COPY exercises/ /home/vscode/exercises/
 ```

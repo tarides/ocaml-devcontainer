@@ -22,8 +22,10 @@ on:
         type: boolean
 
 env:
-  DOCKER_HUB_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-5.4
-  GHCR_REPO: ghcr.io/${{ github.repository_owner }}/ocaml-5.4
+  DOCKER_HUB_BASE: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-devcontainer-base
+  DOCKER_HUB_DEV: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-devcontainer
+  GHCR_BASE: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-base
+  GHCR_DEV: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer
 
 jobs:
   # ============================================================================
@@ -96,8 +98,8 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-base:latest-amd64
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64
+            ${{ env.GHCR_BASE }}:latest-amd64
+            ${{ env.DOCKER_HUB_BASE }}:latest-amd64
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -148,8 +150,8 @@ jobs:
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-base:latest-arm64
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
+            ${{ env.GHCR_BASE }}:latest-arm64
+            ${{ env.DOCKER_HUB_BASE }}:latest-arm64
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -204,13 +206,13 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-dev:latest-amd64
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64
+            ${{ env.GHCR_DEV }}:latest-amd64
+            ${{ env.DOCKER_HUB_DEV }}:latest-amd64
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            BASE_IMAGE=${{ env.GHCR_REPO }}-base:latest-amd64
+            BASE_IMAGE=${{ env.GHCR_BASE }}:latest-amd64
           cache-from: type=gha,scope=dev-amd64
           cache-to: type=gha,mode=max,scope=dev-amd64
 
@@ -259,13 +261,13 @@ jobs:
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.GHCR_REPO }}-dev:latest-arm64
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+            ${{ env.GHCR_DEV }}:latest-arm64
+            ${{ env.DOCKER_HUB_DEV }}:latest-arm64
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
-            BASE_IMAGE=${{ env.GHCR_REPO }}-base:latest-arm64
+            BASE_IMAGE=${{ env.GHCR_BASE }}:latest-arm64
           cache-from: type=gha,scope=dev-arm64
           cache-to: type=gha,mode=max,scope=dev-arm64
 
@@ -303,39 +305,39 @@ jobs:
 
       - name: Create and push multi-arch manifest (GHCR)
         run: |
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}-base:latest \
-            ${{ env.GHCR_REPO }}-base:latest-amd64 \
-            ${{ env.GHCR_REPO }}-base:latest-arm64
+          docker buildx imagetools create -t ${{ env.GHCR_BASE }}:latest \
+            ${{ env.GHCR_BASE }}:latest-amd64 \
+            ${{ env.GHCR_BASE }}:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.GHCR_REPO }}-base:${VERSION} \
-              ${{ env.GHCR_REPO }}-base:latest-amd64 \
-              ${{ env.GHCR_REPO }}-base:latest-arm64
+            docker buildx imagetools create -t ${{ env.GHCR_BASE }}:${VERSION} \
+              ${{ env.GHCR_BASE }}:latest-amd64 \
+              ${{ env.GHCR_BASE }}:latest-arm64
           fi
 
       - name: Create and push multi-arch manifest (Docker Hub)
         run: |
-          docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-base:latest \
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64 \
-            ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
+          docker buildx imagetools create -t ${{ env.DOCKER_HUB_BASE }}:latest \
+            ${{ env.DOCKER_HUB_BASE }}:latest-amd64 \
+            ${{ env.DOCKER_HUB_BASE }}:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-base:${VERSION} \
-              ${{ env.DOCKER_HUB_REPO }}-base:latest-amd64 \
-              ${{ env.DOCKER_HUB_REPO }}-base:latest-arm64
+            docker buildx imagetools create -t ${{ env.DOCKER_HUB_BASE }}:${VERSION} \
+              ${{ env.DOCKER_HUB_BASE }}:latest-amd64 \
+              ${{ env.DOCKER_HUB_BASE }}:latest-arm64
           fi
 
       - name: Verify multi-arch manifest
         run: |
           echo "=== GHCR Base Image ==="
-          docker buildx imagetools inspect ${{ env.GHCR_REPO }}-base:latest
+          docker buildx imagetools inspect ${{ env.GHCR_BASE }}:latest
           echo ""
           echo "=== Docker Hub Base Image ==="
-          docker buildx imagetools inspect ${{ env.DOCKER_HUB_REPO }}-base:latest
+          docker buildx imagetools inspect ${{ env.DOCKER_HUB_BASE }}:latest
 
   # ============================================================================
   # Fan-in: Merge Dev Image Tags into Multi-Arch Manifest
@@ -371,36 +373,36 @@ jobs:
 
       - name: Create and push multi-arch manifest (GHCR)
         run: |
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}-dev:latest \
-            ${{ env.GHCR_REPO }}-dev:latest-amd64 \
-            ${{ env.GHCR_REPO }}-dev:latest-arm64
+          docker buildx imagetools create -t ${{ env.GHCR_DEV }}:latest \
+            ${{ env.GHCR_DEV }}:latest-amd64 \
+            ${{ env.GHCR_DEV }}:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.GHCR_REPO }}-dev:${VERSION} \
-              ${{ env.GHCR_REPO }}-dev:latest-amd64 \
-              ${{ env.GHCR_REPO }}-dev:latest-arm64
+            docker buildx imagetools create -t ${{ env.GHCR_DEV }}:${VERSION} \
+              ${{ env.GHCR_DEV }}:latest-amd64 \
+              ${{ env.GHCR_DEV }}:latest-arm64
           fi
 
       - name: Create and push multi-arch manifest (Docker Hub)
         run: |
-          docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-dev:latest \
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64 \
-            ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+          docker buildx imagetools create -t ${{ env.DOCKER_HUB_DEV }}:latest \
+            ${{ env.DOCKER_HUB_DEV }}:latest-amd64 \
+            ${{ env.DOCKER_HUB_DEV }}:latest-arm64
 
           # Add version tag if this is a release
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
-            docker buildx imagetools create -t ${{ env.DOCKER_HUB_REPO }}-dev:${VERSION} \
-              ${{ env.DOCKER_HUB_REPO }}-dev:latest-amd64 \
-              ${{ env.DOCKER_HUB_REPO }}-dev:latest-arm64
+            docker buildx imagetools create -t ${{ env.DOCKER_HUB_DEV }}:${VERSION} \
+              ${{ env.DOCKER_HUB_DEV }}:latest-amd64 \
+              ${{ env.DOCKER_HUB_DEV }}:latest-arm64
           fi
 
       - name: Verify multi-arch manifest
         run: |
           echo "=== GHCR Dev Image ==="
-          docker buildx imagetools inspect ${{ env.GHCR_REPO }}-dev:latest
+          docker buildx imagetools inspect ${{ env.GHCR_DEV }}:latest
           echo ""
           echo "=== Docker Hub Dev Image ==="
-          docker buildx imagetools inspect ${{ env.DOCKER_HUB_REPO }}-dev:latest
+          docker buildx imagetools inspect ${{ env.DOCKER_HUB_DEV }}:latest

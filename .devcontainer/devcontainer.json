@@ -22,7 +22,7 @@
     }
   },
 
-  "postStartCommand": "bash .devcontainer/hide-codespaces-badge.sh && eval $(opam env)",
+  "postStartCommand": "bash .devcontainer/hide-codespaces-badge.sh",
 
   "remoteUser": "vscode",
 

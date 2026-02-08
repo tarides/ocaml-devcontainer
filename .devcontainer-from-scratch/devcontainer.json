@@ -27,8 +27,6 @@
     }
   },
 
-  "postStartCommand": "eval $(opam env)",
-
   "remoteUser": "vscode",
 
   "mounts": [

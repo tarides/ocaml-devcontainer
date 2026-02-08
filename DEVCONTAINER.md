@@ -8,6 +8,17 @@ Click the button below to open in Codespaces (no local setup required):
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
+## GitHub Codespaces (CLI)
+
+```bash
+# Create and connect
+gh codespace create --repo tarides/ocaml-devcontainer
+gh codespace ssh
+
+# Or open in VS Code
+gh codespace code
+```
+
 ## Local Setup
 
 ### Option 1: VS Code (Recommended for VS Code users)

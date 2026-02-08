@@ -2,13 +2,44 @@
 
 Zero-installation OCaml development environment. Perfect for tutorials and workshops.
 
-## Quick Start (Tutorial Attendees)
+## Quick Start (Web)
 
 1. Click the green "Code" button on the repository page
 2. Select "Codespaces" tab
 3. Click "Create codespace on main"
 4. Wait ~2-3 minutes for the environment to start
 5. You're ready to code!
+
+## Quick Start (CLI)
+
+Using the [GitHub CLI](https://cli.github.com/):
+
+```bash
+# Create a codespace
+gh codespace create --repo tarides/ocaml-devcontainer
+
+# Connect via SSH
+gh codespace ssh
+
+# Or open in VS Code
+gh codespace code
+
+# Or run a single command
+gh codespace ssh -- dune build
+```
+
+### Managing Codespaces
+
+```bash
+# List your codespaces
+gh codespace list
+
+# Stop a running codespace (avoids charges)
+gh codespace stop
+
+# Delete a codespace
+gh codespace delete
+```
 
 ## What's Included
 
@@ -72,4 +103,8 @@ The default Codespace has 4 cores and 8GB RAM. For larger projects, you can requ
 1. Test the Codespace before your session
 2. Provide the direct Codespace creation link to attendees
 3. Have a backup plan (local devcontainer) for connectivity issues
-4. Clean up Codespaces after the tutorial to avoid charges
+4. Clean up Codespaces after the tutorial to avoid charges:
+   ```bash
+   gh codespace list
+   gh codespace delete --all
+   ```

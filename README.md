@@ -19,6 +19,13 @@ Production-ready OCaml development environment for VS Code, Codespaces, and any 
 
 Click "Create a GitHub Codespace" above. Ready in ~2 minutes.
 
+### GitHub Codespaces (CLI)
+
+```bash
+gh codespace create --repo tarides/ocaml-devcontainer
+gh codespace ssh
+```
+
 ### Local (VS Code)
 
 ```bash

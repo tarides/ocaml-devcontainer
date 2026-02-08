@@ -22,20 +22,24 @@ else
     exit 0
 fi
 
-# Test 2: Validate devcontainer.json
+# Test 2: Validate .devcontainer/devcontainer.json
 echo ""
-echo "--- Test 2: Validate devcontainer.json ---"
-if [ -f "$PROJECT_DIR/.devcontainer/devcontainer.json" ]; then
-    # Basic JSON validation
-    python3 -c "import json; json.load(open('$PROJECT_DIR/.devcontainer/devcontainer.json'))" 2>&1 || {
-        echo "FAIL: devcontainer.json is not valid JSON"
-        exit 1
-    }
-    echo "PASS: devcontainer.json is valid JSON"
-else
-    echo "FAIL: .devcontainer/devcontainer.json not found"
+echo "--- Test 2: Validate .devcontainer/devcontainer.json ---"
+devcontainer read-configuration --workspace-folder "$PROJECT_DIR" > /dev/null || {
+    echo "FAIL: .devcontainer/devcontainer.json is not valid"
     exit 1
-fi
+}
+echo "PASS: .devcontainer/devcontainer.json is valid"
+
+# Test 2b: Validate .devcontainer-from-scratch/devcontainer.json
+echo ""
+echo "--- Test 2b: Validate .devcontainer-from-scratch/devcontainer.json ---"
+devcontainer read-configuration --workspace-folder "$PROJECT_DIR" \
+    --config "$PROJECT_DIR/.devcontainer-from-scratch/devcontainer.json" > /dev/null || {
+    echo "FAIL: .devcontainer-from-scratch/devcontainer.json is not valid"
+    exit 1
+}
+echo "PASS: .devcontainer-from-scratch/devcontainer.json is valid"
 
 # Test 3: Check VS Code extension is specified
 echo ""

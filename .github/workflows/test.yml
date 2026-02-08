@@ -116,6 +116,12 @@ jobs:
       - name: Install devcontainer CLI
         run: npm install -g @devcontainers/cli
 
+      - name: Validate .devcontainer/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder .
+
+      - name: Validate .devcontainer-from-scratch/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-from-scratch/devcontainer.json
+
       - name: Run VS Code tests
         run: |
           ./test/test-vscode.sh
@@ -166,6 +172,26 @@ jobs:
           ./test/test-claude.sh
 
   # ============================================================================
+  # Functional test: spin up devcontainer and run smoke tests
+  # ============================================================================
+  test-devcontainer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and run devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            ocaml -version
+            dune --version
+            opam switch list
+            cd examples/hello && dune build && dune exec ./hello.exe
+          push: never
+
+  # ============================================================================
   # Summary job (for required status checks)
   # ============================================================================
   test-summary:
@@ -179,6 +205,7 @@ jobs:
       - test-emacs
       - test-neovim
       - test-claude
+      - test-devcontainer
     if: always()
 
     steps:
@@ -190,6 +217,10 @@ jobs:
           fi
           if [ "${{ needs.test-lsp.result }}" != "success" ]; then
             echo "test-lsp failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-devcontainer.result }}" != "success" ]; then
+            echo "test-devcontainer failed"
             exit 1
           fi
           # Note: Some tests may be expected to have warnings, not failures

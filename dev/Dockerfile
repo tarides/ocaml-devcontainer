@@ -11,8 +11,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 
 # Limit opam parallelism to control memory usage during builds
 # Override with: docker build --build-arg OPAMJOBS=2 ...
-ARG OPAMJOBS=""
-ENV OPAMJOBS=${OPAMJOBS}
+ARG OPAMJOBS
 
 # Switch to vscode user for opam operations
 USER vscode

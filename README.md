@@ -1,36 +1,21 @@
 # OCaml DevContainer
 
-Production-ready OCaml development environment for VS Code, Codespaces, and any editor.
-
 [![Build](https://github.com/tarides/ocaml-devcontainer/actions/workflows/build-push.yml/badge.svg)](https://github.com/tarides/ocaml-devcontainer/actions/workflows/build-push.yml)
 [![Tests](https://github.com/tarides/ocaml-devcontainer/actions/workflows/test.yml/badge.svg)](https://github.com/tarides/ocaml-devcontainer/actions/workflows/test.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cuihtlauac/ocaml-devcontainer)](https://hub.docker.com/r/cuihtlauac/ocaml-devcontainer)
 
 [![Create a GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
-## Features
+A ready-to-use OCaml 5.4 development environment packaged as a [devcontainer](https://containers.dev/). Designed for tutorials and workshops where zero-friction onboarding is critical — participants get a working environment in minutes, regardless of their OS or editor.
 
-- **OCaml 5.4** with standard and ThreadSanitizer variants
-- **Full toolchain**: dune, LSP, merlin, ocamlformat, utop
-- **Testing**: alcotest, ppx_expect, qcheck
-- **Profiling**: landmarks, memtrace, olly
-- **Multi-editor**: VS Code, Vim, Emacs, Neovim, Claude Code
-- **Zero setup**: Works instantly in GitHub Codespaces
+## Choose your workflow
 
-## Quick Start
+### VS Code
 
-### GitHub Codespaces (Instant)
-
-Click "Create a GitHub Codespace" above. Ready in ~2 minutes.
-
-### GitHub Codespaces (CLI)
-
-```bash
-gh codespace create --repo tarides/ocaml-devcontainer
-gh codespace ssh
-```
-
-### Local (VS Code)
+This is for you if:
+- You use VS Code as your primary editor
+- You want graphical IDE features (hover types, diagnostics, go-to-definition)
+- You have Docker installed locally
 
 ```bash
 git clone https://github.com/tarides/ocaml-devcontainer.git
@@ -38,30 +23,44 @@ code ocaml-devcontainer
 # Click "Reopen in Container" when prompted
 ```
 
-### Local (Any Editor)
+[Full guide](docs/SETUP-VSCODE.md)
+
+### DevContainer CLI
+
+This is for you if:
+- You prefer Vim, Emacs, Neovim, or another terminal editor
+- You want to use Claude Code inside the container
+- You have Docker and Node.js installed locally
 
 ```bash
 npm install -g @devcontainers/cli
 git clone https://github.com/tarides/ocaml-devcontainer.git
 cd ocaml-devcontainer
 devcontainer up --workspace-folder .
-
-# Use your preferred editor
 devcontainer exec --workspace-folder . vim examples/hello/hello.ml
-devcontainer exec --workspace-folder . dune build
 ```
 
-## Documentation
+[Full guide](docs/SETUP-DEVCONTAINER-EXEC.md)
 
-| Guide | Description |
-|-------|-------------|
-| [DEVCONTAINER.md](DEVCONTAINER.md) | Quick start overview |
-| [docs/SETUP-CODESPACES.md](docs/SETUP-CODESPACES.md) | GitHub Codespaces setup |
-| [docs/SETUP-DEVCONTAINER-EXEC.md](docs/SETUP-DEVCONTAINER-EXEC.md) | Primary local workflow |
-| [docs/SETUP-VSCODE.md](docs/SETUP-VSCODE.md) | VS Code integration |
-| [docs/SETUP-ADVANCED.md](docs/SETUP-ADVANCED.md) | TRAMP, Neovim, customization |
+### GitHub Codespaces
 
-## OCaml Switches
+This is for you if:
+- You don't want to install anything on your machine
+- You want the fastest possible start (~2 minutes)
+- You're attending a workshop or tutorial
+
+Click "Create a GitHub Codespace" above, or:
+
+```bash
+gh codespace create --repo tarides/ocaml-devcontainer
+gh codespace ssh
+```
+
+[Full guide](docs/SETUP-CODESPACES.md)
+
+## What's inside
+
+### OCaml switches
 
 Two switches are pre-configured with identical tools:
 
@@ -76,43 +75,59 @@ opam switch 5.4.0+tsan
 eval $(opam env)
 ```
 
-## Project Structure
+### Installed tools
 
-```
-.devcontainer/           # Pre-built image config (fast startup)
-.devcontainer-from-scratch/  # Local build config
-base/                    # Base image (compilers)
-dev/                     # Dev image (tools)
-examples/                # Sample projects
-test/                    # Integration tests
-docs/                    # Setup guides
-```
+| Category | Tools |
+|----------|-------|
+| **Compilers** | OCaml 5.4.0, OCaml 5.4.0+tsan |
+| **Build & dev** | dune, ocaml-lsp-server, merlin, ocamlformat, utop, odoc |
+| **Testing** | alcotest, ppx_inline_test, ppx_expect, qcheck |
+| **Profiling** | landmarks, memtrace, runtime_events_tools (olly), printbox |
+| **Libraries** | core, base |
+| **Debugging** | gdb, lldb, valgrind, rr, perf, strace, ltrace, bpftrace, hyperfine |
+| **Editors** | vim, emacs-nox |
 
-## Building from Source
-
-To build the Docker images locally:
+### Common commands
 
 ```bash
-# Required: reduce ASLR entropy for TSan compilation
-sudo sysctl -w vm.mmap_rnd_bits=28
-
-# Build images
-docker build -t ocaml-devcontainer-base base/
-docker build -t ocaml-devcontainer dev/
+dune build           # Build the project
+dune test            # Run tests
+dune fmt             # Format code (ocamlformat)
+utop                 # Interactive REPL
+odoc                 # Generate documentation
 ```
 
-The `vm.mmap_rnd_bits=28` setting is required for the ThreadSanitizer switch to compile.
-See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716) for details.
+## For tutorial and workshop authors
 
-## For Tutorial Authors
-
-This environment is designed for OCaml tutorials and workshops. Create a tutorial-specific image:
+This environment is designed to be extended. Create a tutorial-specific image layered on top:
 
 ```dockerfile
 FROM ghcr.io/tarides/ocaml-devcontainer:latest
-RUN opam install -y lwt eio  # Add your packages
+RUN opam install -y lwt eio        # Add your packages
 COPY exercises/ /home/vscode/exercises/
 ```
+
+Tips:
+- **Test beforehand** — spin up a Codespace and run through your exercises
+- **Provide a Codespace link** — attendees click one button to get started
+- **Have a local fallback** — some venues have poor wifi; the DevContainer CLI workflow works offline once images are pulled
+- **Clean up after** — remind attendees to delete their Codespaces to avoid charges (`gh codespace delete --all`)
+
+## Project structure
+
+```
+.devcontainer/             # Pre-built image config (fast startup)
+.devcontainer-from-scratch/  # Local build config (for customization)
+base/                      # Base image Dockerfile (compilers + system tools)
+dev/                       # Dev image Dockerfile (opam packages)
+examples/                  # Sample OCaml projects
+test/                      # Integration test scripts
+docs/                      # Setup guides per workflow
+```
+
+## Hacking
+
+See [HACKING.md](HACKING.md) for building images, running tests, and CI details.
 
 ## License
 

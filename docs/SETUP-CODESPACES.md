@@ -2,7 +2,7 @@
 
 Zero-installation OCaml development environment. Perfect for tutorials and workshops.
 
-## Quick Start (Web)
+## Quick start (web)
 
 1. Click the green "Code" button on the repository page
 2. Select "Codespaces" tab
@@ -10,11 +10,14 @@ Zero-installation OCaml development environment. Perfect for tutorials and works
 4. Wait ~2-3 minutes for the environment to start
 5. You're ready to code!
 
-## Quick Start (CLI)
+## Quick start (CLI)
 
 Using the [GitHub CLI](https://cli.github.com/):
 
 ```bash
+# One-time: ensure the codespace scope is authorized
+gh auth refresh -h github.com -s codespace
+
 # Create a codespace
 gh codespace create --repo tarides/ocaml-devcontainer
 
@@ -28,7 +31,12 @@ gh codespace code
 gh codespace ssh -- dune build
 ```
 
-### Managing Codespaces
+> **HTTP 403 error?** First check that `gh` is authenticated with GitHub
+> (see [Authenticating with GitHub CLI](https://docs.github.com/en/codespaces/developing-in-a-codespace/using-github-codespaces-with-github-cli#prerequisites)).
+> If authentication is fine, the issue is likely a missing scope — run
+> `gh auth refresh -h github.com -s codespace` to grant it, then retry.
+
+### Managing codespaces
 
 ```bash
 # List your codespaces
@@ -41,19 +49,7 @@ gh codespace stop
 gh codespace delete
 ```
 
-## What's Included
-
-- OCaml 5.4.0 compiler (default)
-- OCaml 5.4.0+tsan (ThreadSanitizer variant)
-- Full development toolchain:
-  - dune (build system)
-  - ocaml-lsp-server (editor support)
-  - ocamlformat (code formatting)
-  - utop (interactive REPL)
-- Testing tools: alcotest, ppx_expect, qcheck
-- Profiling tools: landmarks, memtrace, olly
-
-## Switching OCaml Versions
+## Switching OCaml versions
 
 ```bash
 # Use standard OCaml 5.4
@@ -65,18 +61,7 @@ opam switch 5.4.0+tsan
 eval $(opam env)
 ```
 
-## Building Your Project
-
-```bash
-# Build
-dune build
-
-# Run tests
-dune test
-
-# Start REPL
-utop
-```
+See the [README](../README.md#ocaml-switches) for the list of available switches.
 
 ## Troubleshooting
 
@@ -94,17 +79,14 @@ dune clean
 opam clean -a
 ```
 
+### Disconnected after inactivity
+
+Codespaces stop automatically after a period of inactivity (default: 30 minutes). Reconnect with `gh codespace ssh`; your work is preserved until the codespace is deleted.
+
 ### Need more resources
 
 The default Codespace has 4 cores and 8GB RAM. For larger projects, you can request more resources in Codespace settings.
 
-## Tips for Tutorial Instructors
+---
 
-1. Test the Codespace before your session
-2. Provide the direct Codespace creation link to attendees
-3. Have a backup plan (local devcontainer) for connectivity issues
-4. Clean up Codespaces after the tutorial to avoid charges:
-   ```bash
-   gh codespace list
-   gh codespace delete --all
-   ```
+See the [README](../README.md) for installed tools, common commands, and switch details.

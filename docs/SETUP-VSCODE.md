@@ -2,13 +2,15 @@
 
 Native VS Code integration with the Dev Containers extension.
 
+> **Note:** This guide targets VS Code. It has not been tested with Cursor or Google IDX.
+
 ## Prerequisites
 
 - [VS Code](https://code.visualstudio.com/)
 - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - Docker installed and running
 
-## Quick Start
+## Quick start
 
 1. Clone the repository:
    ```bash
@@ -25,11 +27,7 @@ Native VS Code integration with the Dev Containers extension.
 
 4. Wait for the container to start (~2-3 minutes first time)
 
-5. Start coding!
-
-## Features
-
-### OCaml Extension
+## OCaml Platform extension
 
 The [OCaml Platform extension](https://marketplace.visualstudio.com/items?itemName=ocamllabs.ocaml-platform) is automatically installed and provides:
 
@@ -41,27 +39,24 @@ The [OCaml Platform extension](https://marketplace.visualstudio.com/items?itemNa
 - Code formatting (ocamlformat)
 - Error diagnostics
 
-### Integrated Terminal
+## Switching OCaml versions
 
-The VS Code terminal runs inside the container with all tools available:
-- `dune build`
-- `dune test`
-- `utop`
-- `ocamlformat`
+Click the opam switch name in the bottom status bar and select the desired switch from the picker. The extension reloads automatically.
 
-### Debugging
+Alternatively, use the terminal:
 
-GDB and LLDB are available for native debugging. VS Code's debugger can be configured to use them.
-
-## Switching OCaml Versions
-
-1. Open the VS Code terminal
-2. Run:
+1. Run:
    ```bash
    opam switch 5.4.0+tsan
    eval $(opam env)
    ```
-3. Reload the window (`Ctrl+Shift+P` → "Developer: Reload Window")
+2. Reload the window (`Ctrl+Shift+P` → "Developer: Reload Window") so the extension picks up the new switch
+
+See the [README](../README.md#ocaml-switches) for the list of available switches.
+
+## Debugging
+
+GDB and LLDB are available for native debugging. VS Code's debugger can be configured to use them.
 
 ## Troubleshooting
 
@@ -89,3 +84,7 @@ dune build  # Build first to generate .merlin files
 - Use `Ctrl+Shift+P` → "OCaml: Restart Language Server" if LSP gets confused
 - The OCaml extension respects `.ocamlformat` files
 - Use the "Problems" panel to see all errors and warnings
+
+---
+
+See the [README](../README.md) for installed tools, common commands, and switch details.

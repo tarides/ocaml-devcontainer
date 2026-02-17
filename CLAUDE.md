@@ -68,13 +68,14 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 ## Project Structure
 
 ```
-base/                     # Dockerfile for ocaml-devcontainer-base (compilers only)
-dev/                      # Dockerfile for ocaml-devcontainer (full dev tools)
-.devcontainer/            # Uses pre-built images (fast startup)
+base/                       # Dockerfile for ocaml-devcontainer-base (compilers only)
+dev/                        # Dockerfile for ocaml-devcontainer (full dev tools)
+.devcontainer/              # Uses pre-built images (fast startup)
 .devcontainer-from-scratch/ # Builds locally (for customization)
-test/                     # Integration test scripts
-examples/                 # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
-docs/                     # Setup guides for different workflows
+test/                       # Integration test scripts
+examples/                   # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
+docs/                       # Setup guides (SETUP-VSCODE, SETUP-DEVCONTAINER-EXEC, SETUP-CODESPACES)
+HACKING.md                  # Building images, running tests, CI details
 ```
 
 ## Configuration Placeholders

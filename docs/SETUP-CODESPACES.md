@@ -2,6 +2,8 @@
 
 Zero-installation OCaml development environment. Perfect for tutorials and workshops.
 
+GitHub Codespaces runs the devcontainer on GitHub's cloud infrastructure — nothing is installed on your machine. Each user can run [several codespaces simultaneously](https://docs.github.com/en/codespaces/overview#billing-for-codespaces); the exact limits depend on your GitHub subscription plan. Your files are persisted across stops and restarts, but a codespace that stays inactive is [automatically deleted after 30 days](https://docs.github.com/en/codespaces/setting-your-user-preferences/configuring-automatic-deletion-of-your-codespaces) — push your work to a branch to keep it safe.
+
 ## Quick start (web)
 
 1. Click the green "Code" button on the repository page

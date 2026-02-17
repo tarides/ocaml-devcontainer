@@ -6,7 +6,7 @@
 
 [![Create a GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
-A ready-to-use OCaml 5.4 development environment packaged as a [devcontainer](https://containers.dev/). Designed for tutorials and workshops where zero-friction onboarding is critical — participants get a working environment in minutes, regardless of their OS or editor.
+A ready-to-use OCaml development environment packaged as a [devcontainer](https://containers.dev/). Designed for tutorials and workshops where zero-friction onboarding is critical — participants get a working environment in minutes, regardless of their OS or editor.
 
 ## Choose your workflow
 
@@ -113,22 +113,6 @@ Tips:
 - **Have a local fallback** — some venues have poor wifi; the DevContainer CLI workflow works offline once images are pulled
 - **Clean up after** — remind attendees to delete their Codespaces to avoid charges (`gh codespace delete --all`)
 
-## Project structure
-
-```
-.devcontainer/             # Pre-built image config (fast startup)
-.devcontainer-from-scratch/  # Local build config (for customization)
-base/                      # Base image Dockerfile (compilers + system tools)
-dev/                       # Dev image Dockerfile (opam packages)
-examples/                  # Sample OCaml projects
-test/                      # Integration test scripts
-docs/                      # Setup guides per workflow
-```
-
 ## Hacking
 
 See [HACKING.md](HACKING.md) for building images, running tests, and CI details.
-
-## License
-
-MIT

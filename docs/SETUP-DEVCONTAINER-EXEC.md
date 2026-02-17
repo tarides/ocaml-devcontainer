@@ -65,6 +65,8 @@ See the [README](../README.md#ocaml-switches) for the list of available switches
 docker stop $(docker ps -q --filter "label=devcontainer.local_folder=$(pwd)")
 ```
 
+The workspace folder is mounted from your host, so your files are always safe on disk. State inside the container (installed packages, shell history) persists across `docker stop`/`devcontainer up` cycles as long as the container is not removed. Running `docker rm` or `devcontainer up --remove-existing-container` destroys that state.
+
 ## Advanced editor integration
 
 ### Emacs TRAMP

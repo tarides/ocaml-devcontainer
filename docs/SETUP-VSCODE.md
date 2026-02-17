@@ -2,7 +2,7 @@
 
 Native VS Code integration with the Dev Containers extension.
 
-> **Note:** This guide targets VS Code. It has not been tested with Cursor or Google IDX.
+> **Note:** This guide targets VS Code. It has not been tested with Cursor or Google Antigravity.
 
 ## Prerequisites
 
@@ -57,6 +57,10 @@ See the [README](../README.md#ocaml-switches) for the list of available switches
 ## Debugging
 
 GDB and LLDB are available for native debugging. VS Code's debugger can be configured to use them.
+
+## Data persistence
+
+The workspace folder is mounted from your host, so your files are always safe on disk. State inside the container (installed packages, shell history) persists as long as you stop and restart the container. Rebuilding the container (`Ctrl+Shift+P` → "Dev Containers: Rebuild Container") resets that state.
 
 ## Troubleshooting
 

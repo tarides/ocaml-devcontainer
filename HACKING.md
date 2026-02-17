@@ -12,16 +12,16 @@ ocaml-devcontainer-base   (~35-50 min, compilers + system tools, rebuild rare)
         └── [tutorial-specific]  (seconds, user-created FROM image)
 ```
 
-- **Base image** (`base/Dockerfile`): Ubuntu 24.04, opam, two OCaml switches (5.4.0 and 5.4.0+tsan), platform tools (dune, ocaml-lsp-server, merlin, utop, odoc), editors (vim, emacs-nox), debugging tools (gdb, lldb, valgrind, rr, perf, strace, ltrace, bpftrace, hyperfine).
-- **Dev image** (`dev/Dockerfile`): Additional opam packages — testing (alcotest, ppx_inline_test, ppx_expect, qcheck), profiling (landmarks, memtrace, runtime_events_tools, printbox), libraries (core, base), formatting (ocamlformat).
+- **Base image** (`base/Dockerfile`): [Ubuntu 24.04](https://releases.ubuntu.com/24.04/), [opam](https://opam.ocaml.org/), two OCaml switches (5.4.0 and 5.4.0+[tsan](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual)), platform tools ([dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [utop](https://github.com/ocaml-community/utop), [odoc](https://ocaml.github.io/odoc/)), editors ([vim](https://www.vim.org/), [emacs-nox](https://www.gnu.org/software/emacs/)), debugging tools ([gdb](https://sourceware.org/gdb/), [lldb](https://lldb.llvm.org/), [valgrind](https://valgrind.org/), [rr](https://rr-project.org/), [perf](https://perf.wiki.kernel.org/), [strace](https://strace.io/), [ltrace](https://man7.org/linux/man-pages/man1/ltrace.1.html), [bpftrace](https://github.com/bpftrace/bpftrace), [hyperfine](https://github.com/sharkdp/hyperfine)).
+- **Dev image** (`dev/Dockerfile`): Additional [opam](https://opam.ocaml.org/) packages — testing ([alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect), [qcheck](https://github.com/c-cube/qcheck)), profiling ([landmarks](https://github.com/LexiFi/landmarks), [memtrace](https://github.com/janestreet/memtrace), [runtime_events_tools](https://github.com/tarides/runtime_events_tools), [printbox](https://github.com/c-cube/printbox)), libraries ([core](https://github.com/janestreet/core), [base](https://github.com/janestreet/base)), formatting ([ocamlformat](https://github.com/ocaml-ppx/ocamlformat)).
 
-Both images are published to Docker Hub and GHCR as multi-arch (amd64 + arm64) manifests.
+Both images are published to [Docker Hub](https://hub.docker.com/r/cuihtlauac/ocaml-devcontainer) and [GHCR](https://github.com/tarides/ocaml-devcontainer/pkgs/container/ocaml-devcontainer) as multi-arch (amd64 + arm64) manifests.
 
 ## Building images locally
 
 ### ASLR entropy requirement
 
-The ThreadSanitizer (TSan) switch requires reduced ASLR entropy on the **build host**:
+The [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) (TSan) switch requires reduced [ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization) entropy on the **build host**:
 
 ```bash
 sudo sysctl -w vm.mmap_rnd_bits=28
@@ -40,7 +40,7 @@ docker build -t ocaml-devcontainer-base base/
 docker build -t ocaml-devcontainer dev/
 ```
 
-To limit memory usage during opam installs, pass `--build-arg OPAMJOBS=2`.
+To limit memory usage during [opam](https://opam.ocaml.org/) installs, pass `--build-arg OPAMJOBS=2`.
 
 ### Using the local build
 
@@ -69,7 +69,7 @@ Test scripts live in `test/` and run inside the container:
 
 ### Build pipeline (`build-push.yml`)
 
-Triggered by pushes to `main` that touch `base/` or `dev/`, version tags, or manual dispatch.
+Triggered by pushes to `main` that touch `base/` or `dev/`, version tags, or [manual dispatch](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow).
 
 ```
 changes ──► build-base-{amd64,arm64} ──► merge-base (multi-arch manifest)
@@ -89,15 +89,15 @@ Matrix: `[5.4.0, 5.4.0+tsan]` for test-ocaml, test-lsp, test-profiling. Other te
 
 | Secret | Purpose |
 |--------|---------|
-| `DOCKERHUB_USERNAME` | Docker Hub username |
-| `DOCKERHUB_TOKEN` | Docker Hub access token |
-| `GITHUB_TOKEN` | Automatic — used for GHCR push |
+| `DOCKERHUB_USERNAME` | [Docker Hub](https://hub.docker.com/) username |
+| `DOCKERHUB_TOKEN` | [Docker Hub access token](https://docs.docker.com/security/for-developers/access-tokens/) |
+| `GITHUB_TOKEN` | [Automatic](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication) — used for GHCR push |
 
 ## Performance tuning
 
-### Dune cache
+### [Dune cache](https://dune.readthedocs.io/en/stable/caching.html)
 
-Mount a persistent dune cache to speed up rebuilds across container restarts:
+Mount a persistent [dune](https://dune.build/) cache to speed up rebuilds across container restarts:
 
 ```json
 {
@@ -117,20 +117,20 @@ export DUNE_CACHE=enabled
 
 The base image includes several debugging tools:
 
-### GDB
+### [GDB](https://sourceware.org/gdb/)
 
 ```bash
 dune build
 gdb _build/default/src/main.exe
 ```
 
-### Valgrind
+### [Valgrind](https://valgrind.org/)
 
 ```bash
 valgrind --leak-check=full ./_build/default/src/main.exe
 ```
 
-### rr (Record & Replay)
+### [rr](https://rr-project.org/) (Record & Replay)
 
 Requires hardware perf counters — works on bare metal and some VMs, not in most cloud containers.
 

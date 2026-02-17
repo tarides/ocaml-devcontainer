@@ -2,7 +2,7 @@
 
 Zero-installation OCaml development environment. Perfect for tutorials and workshops.
 
-GitHub Codespaces runs the devcontainer on GitHub's cloud infrastructure — nothing is installed on your machine. Each user can run [several codespaces simultaneously](https://docs.github.com/en/codespaces/overview#billing-for-codespaces); the exact limits depend on your GitHub subscription plan. Your files are persisted across stops and restarts, but a codespace that stays inactive is [automatically deleted after 30 days](https://docs.github.com/en/codespaces/setting-your-user-preferences/configuring-automatic-deletion-of-your-codespaces) — push your work to a branch to keep it safe.
+[GitHub Codespaces](https://docs.github.com/en/codespaces) runs the devcontainer on GitHub's cloud infrastructure — nothing is installed on your machine. Each user can run [several codespaces simultaneously](https://docs.github.com/en/codespaces/overview#billing-for-codespaces); the exact limits depend on your GitHub subscription plan. Your files are persisted across stops and restarts, but a codespace that stays inactive is [automatically deleted after 30 days](https://docs.github.com/en/codespaces/setting-your-user-preferences/configuring-automatic-deletion-of-your-codespaces) — push your work to a branch to keep it safe.
 
 ## Quick start (web)
 
@@ -70,7 +70,7 @@ See the [README](../README.md#ocaml-switches) for the list of available switches
 ### Codespace is slow to start
 
 Pre-built images are used for fast startup. If it's taking longer than 5 minutes:
-- Check GitHub Status page
+- Check [GitHub Status](https://www.githubstatus.com/) page
 - Try creating a new codespace
 
 ### Out of storage
@@ -83,11 +83,11 @@ opam clean -a
 
 ### Disconnected after inactivity
 
-Codespaces stop automatically after a period of inactivity (default: 30 minutes). Reconnect with `gh codespace ssh`; your work is preserved until the codespace is deleted.
+Codespaces [stop automatically](https://docs.github.com/en/codespaces/setting-your-user-preferences/setting-your-timeout-period-for-github-codespaces) after a period of inactivity (default: 30 minutes). Reconnect with `gh codespace ssh`; your work is preserved until the codespace is deleted.
 
 ### Need more resources
 
-The default Codespace has 4 cores and 8GB RAM. For larger projects, you can request more resources in Codespace settings.
+The default Codespace has 4 cores and 8GB RAM. For larger projects, you can [request more resources](https://docs.github.com/en/codespaces/customizing-your-codespace/changing-the-machine-type-for-your-codespace) in Codespace settings.
 
 ---
 

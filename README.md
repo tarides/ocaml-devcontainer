@@ -6,16 +6,16 @@
 
 [![Create a GitHub Codespace](https://github.com/codespaces/badge.svg)](https://codespaces.new/tarides/ocaml-devcontainer)
 
-A ready-to-use OCaml development environment packaged as a [devcontainer](https://containers.dev/). Designed for tutorials and workshops where zero-friction onboarding is critical — participants get a working environment in minutes, regardless of their OS or editor.
+A ready-to-use [OCaml](https://ocaml.org/) 5.4 development environment packaged as a [devcontainer](https://containers.dev/). Designed for tutorials and workshops where zero-friction onboarding is critical — participants get a working environment in minutes, regardless of their OS or editor.
 
 ## Choose your workflow
 
-### VS Code
+### [VS Code](https://code.visualstudio.com/)
 
 This is for you if:
 - You use VS Code as your primary editor
 - You want graphical IDE features (hover types, diagnostics, go-to-definition)
-- You have Docker installed locally
+- You have [Docker](https://docs.docker.com/get-started/get-docker/) installed locally
 
 ```bash
 git clone https://github.com/tarides/ocaml-devcontainer.git
@@ -25,12 +25,12 @@ code ocaml-devcontainer
 
 [Full guide](docs/SETUP-VSCODE.md)
 
-### DevContainer CLI
+### [DevContainer CLI](https://github.com/devcontainers/cli)
 
 This is for you if:
-- You prefer Vim, Emacs, Neovim, or another terminal editor
-- You want to use Claude Code inside the container
-- You have Docker and Node.js installed locally
+- You prefer [Vim](https://www.vim.org/), [Emacs](https://www.gnu.org/software/emacs/), [Neovim](https://neovim.io/), or another terminal editor
+- You want to use [Claude Code](https://docs.anthropic.com/en/docs/claude-code) inside the container
+- You have [Docker](https://docs.docker.com/get-started/get-docker/) and [Node.js](https://nodejs.org/) installed locally
 
 ```bash
 npm install -g @devcontainers/cli
@@ -42,7 +42,7 @@ devcontainer exec --workspace-folder . vim examples/hello/hello.ml
 
 [Full guide](docs/SETUP-DEVCONTAINER-EXEC.md)
 
-### GitHub Codespaces
+### [GitHub Codespaces](https://github.com/features/codespaces)
 
 This is for you if:
 - You don't want to install anything on your machine
@@ -66,8 +66,8 @@ Two switches are pre-configured with identical tools:
 
 | Switch | Description |
 |--------|-------------|
-| `5.4.0` | Standard OCaml 5.4 (default) |
-| `5.4.0+tsan` | ThreadSanitizer for race detection |
+| `5.4.0` | Standard [OCaml 5.4](https://ocaml.org/releases/5.4.0) (default) |
+| `5.4.0+tsan` | [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) for race detection |
 
 Switch between them:
 ```bash
@@ -79,13 +79,13 @@ eval $(opam env)
 
 | Category | Tools |
 |----------|-------|
-| **Compilers** | OCaml 5.4.0, OCaml 5.4.0+tsan |
-| **Build & dev** | dune, ocaml-lsp-server, merlin, ocamlformat, utop, odoc |
-| **Testing** | alcotest, ppx_inline_test, ppx_expect, qcheck |
-| **Profiling** | landmarks, memtrace, runtime_events_tools (olly), printbox |
-| **Libraries** | core, base |
-| **Debugging** | gdb, lldb, valgrind, rr, perf, strace, ltrace, bpftrace, hyperfine |
-| **Editors** | vim, emacs-nox |
+| **Compilers** | [OCaml](https://ocaml.org/) 5.4.0, OCaml 5.4.0+tsan |
+| **Build & dev** | [dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [ocamlformat](https://github.com/ocaml-ppx/ocamlformat), [utop](https://github.com/ocaml-community/utop), [odoc](https://ocaml.github.io/odoc/) |
+| **Testing** | [alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect), [qcheck](https://github.com/c-cube/qcheck) |
+| **Profiling** | [landmarks](https://github.com/LexiFi/landmarks), [memtrace](https://github.com/janestreet/memtrace), [runtime_events_tools](https://github.com/tarides/runtime_events_tools) (olly), [printbox](https://github.com/c-cube/printbox) |
+| **Libraries** | [core](https://github.com/janestreet/core), [base](https://github.com/janestreet/base) |
+| **Debugging** | [gdb](https://sourceware.org/gdb/), [lldb](https://lldb.llvm.org/), [valgrind](https://valgrind.org/), [rr](https://rr-project.org/), [perf](https://perf.wiki.kernel.org/), [strace](https://strace.io/), [ltrace](https://man7.org/linux/man-pages/man1/ltrace.1.html), [bpftrace](https://github.com/bpftrace/bpftrace), [hyperfine](https://github.com/sharkdp/hyperfine) |
+| **Editors** | [vim](https://www.vim.org/), [emacs](https://www.gnu.org/software/emacs/) |
 
 ### Common commands
 

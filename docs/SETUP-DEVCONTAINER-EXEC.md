@@ -1,11 +1,11 @@
 # DevContainer CLI Workflow
 
-Use your preferred editor (Vim, Emacs, Neovim, Claude Code, ...) with all OCaml tools running inside the container.
+Use your preferred editor ([Vim](https://www.vim.org/), [Emacs](https://www.gnu.org/software/emacs/), [Neovim](https://neovim.io/), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), ...) with all OCaml tools running inside the container.
 
 ## Prerequisites
 
-- Docker installed and running
-- Node.js (for the DevContainer CLI)
+- [Docker](https://docs.docker.com/get-started/get-docker/) installed and running
+- [Node.js](https://nodejs.org/) (for the DevContainer CLI)
 - [DevContainer CLI](https://github.com/devcontainers/cli):
   ```bash
   npm install -g @devcontainers/cli
@@ -71,7 +71,7 @@ The workspace folder is mounted from your host, so your files are always safe on
 
 ### Emacs TRAMP
 
-Edit files remotely using Emacs TRAMP with the Docker method.
+Edit files remotely using [Emacs TRAMP](https://www.gnu.org/software/tramp/) with the Docker method.
 
 1. Start the container:
    ```bash
@@ -88,13 +88,13 @@ Edit files remotely using Emacs TRAMP with the Docker method.
    C-x C-f /docker:CONTAINER_NAME:/home/vscode/project/src/main.ml
    ```
 
-4. Configure eglot for LSP support — add to your Emacs config:
+4. Configure [eglot](https://www.gnu.org/software/emacs/manual/html_mono/eglot.html) for LSP support — add to your Emacs config:
    ```elisp
    (add-to-list 'eglot-server-programs
      '(tuareg-mode . ("docker" "exec" "-i" "CONTAINER_NAME" "ocamllsp")))
    ```
 
-### Neovim plugins
+### [Neovim](https://neovim.io/) plugins
 
 #### nvim-dev-container
 
@@ -107,7 +107,7 @@ For a VS Code-like "Reopen in Container" experience:
    ```
 3. Use `:DevcontainerStart` to open in container
 
-#### Manual LSP setup
+#### Manual [LSP](https://neovim.io/doc/user/lsp.html) setup
 
 ```lua
 vim.api.nvim_create_autocmd('FileType', {

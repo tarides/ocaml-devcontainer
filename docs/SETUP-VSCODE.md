@@ -1,14 +1,14 @@
 # VS Code Setup
 
-Native VS Code integration with the Dev Containers extension.
+Native [VS Code](https://code.visualstudio.com/) integration with the [Dev Containers extension](https://code.visualstudio.com/docs/devcontainers/containers).
 
-> **Note:** This guide targets VS Code. It has not been tested with Cursor or Google Antigravity.
+> **Note:** This guide targets VS Code. It has not been tested with [Cursor](https://www.cursor.com/) or [Google Antigravity](https://idx.google.com/).
 
 ## Prerequisites
 
 - [VS Code](https://code.visualstudio.com/)
 - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-- Docker installed and running
+- [Docker](https://docs.docker.com/get-started/get-docker/) installed and running
 
 ## Quick start
 
@@ -36,12 +36,12 @@ The [OCaml Platform extension](https://marketplace.visualstudio.com/items?itemNa
 - Type information on hover
 - Go to definition
 - Find references
-- Code formatting (ocamlformat)
+- Code formatting ([ocamlformat](https://github.com/ocaml-ppx/ocamlformat))
 - Error diagnostics
 
 ## Switching OCaml versions
 
-Click the opam switch name in the bottom status bar and select the desired switch from the picker. The extension reloads automatically.
+Click the [opam](https://opam.ocaml.org/) switch name in the bottom status bar and select the desired switch from the picker. The extension reloads automatically.
 
 Alternatively, use the terminal:
 
@@ -56,11 +56,11 @@ See the [README](../README.md#ocaml-switches) for the list of available switches
 
 ## Debugging
 
-GDB and LLDB are available for native debugging. VS Code's debugger can be configured to use them.
+[GDB](https://sourceware.org/gdb/) and [LLDB](https://lldb.llvm.org/) are available for native debugging. VS Code's [debugger](https://code.visualstudio.com/docs/debugger/overview) can be configured to use them.
 
 ## Data persistence
 
-The workspace folder is mounted from your host, so your files are always safe on disk. State inside the container (installed packages, shell history) persists as long as you stop and restart the container. Rebuilding the container (`Ctrl+Shift+P` → "Dev Containers: Rebuild Container") resets that state.
+The workspace folder is [mounted from your host](https://code.visualstudio.com/docs/devcontainers/containers#_quick-start-open-an-existing-folder-in-a-container), so your files are always safe on disk. State inside the container (installed packages, shell history) persists as long as you stop and restart the container. Rebuilding the container (`Ctrl+Shift+P` → "Dev Containers: Rebuild Container") resets that state.
 
 ## Troubleshooting
 

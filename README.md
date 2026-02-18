@@ -75,6 +75,13 @@ opam switch 5.4.0+tsan
 eval $(opam env)
 ```
 
+> **Note:** The TSan switch requires reduced ASLR entropy on the host:
+> ```bash
+> sudo sysctl -w vm.mmap_rnd_bits=28
+> ```
+> Without this, TSan binaries crash with "unexpected memory mapping" errors.
+> See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
+
 ### Installed tools
 
 | Category | Tools |

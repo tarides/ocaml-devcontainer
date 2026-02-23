@@ -63,15 +63,15 @@ EOF
 
 cat > "$TEMP_DIR/local_test.ml" << 'EOF'
 (* Test local_ allocations — an OxCaml feature *)
-let sum_local (xs : int list) : int =
-  let local_ acc = ref 0 in
-  List.iter (fun x -> acc := !acc + x) xs;
-  !acc
+let[@inline never] use_local () =
+  let local_ pair = (1, 2) in
+  let (a, b) = pair in
+  a + b
 
 let () =
-  let result = sum_local [1; 2; 3; 4; 5] in
-  Printf.printf "sum = %d\n" result;
-  assert (result = 15);
+  let result = use_local () in
+  Printf.printf "result = %d\n" result;
+  assert (result = 3);
   print_endline "PASS: local_ allocations work"
 EOF
 

@@ -107,14 +107,17 @@ RUN opam init --disable-sandboxing --auto-setup --yes
 # OCaml Switches
 # ============================================================================
 
-# OCaml platform tools - installed at switch creation time in all switches
+# OCaml platform tools for ocaml and ocaml+tsan switches
 ENV OCAML_PLATFORM="dune ocaml-lsp-server merlin utop odoc"
+
+# OxCaml platform tools (utop and odoc don't compile with OxCaml yet)
+ENV OXCAML_PLATFORM="dune ocaml-lsp-server merlin"
 
 # Create OxCaml switch using the oxcaml opam repository
 RUN opam switch create oxcaml \
     --repos "ox=git+https://github.com/oxcaml/opam-repository.git,default" \
     ocaml-variants.5.2.0+ox --yes && \
-    opam install -y ${OCAML_PLATFORM}
+    opam install -y ${OXCAML_PLATFORM}
 
 # Create standard OCaml 5.4.0 switch and install platform tools
 RUN opam switch create ocaml ocaml-base-compiler.5.4.0 --yes && \

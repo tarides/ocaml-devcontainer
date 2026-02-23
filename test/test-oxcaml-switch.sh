@@ -85,7 +85,8 @@ echo "PASS: OxCaml local_ allocations compile and run"
 # Test 6: Verify platform tools
 echo ""
 echo "--- Test 6: Verify tools installed ---"
-TOOLS="utop ocamlmerlin ocamllsp odoc"
+# utop and odoc don't compile with OxCaml yet
+TOOLS="ocamlmerlin ocamllsp"
 for tool in $TOOLS; do
     if command -v "$tool" &> /dev/null; then
         echo "  $tool: $(which $tool)"

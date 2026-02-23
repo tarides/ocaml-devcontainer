@@ -23,7 +23,7 @@ WORKDIR /home/vscode
 
 # Tools for the ocaml and ocaml+tsan switches (same as standard dev image)
 ENV OCAML_BUILD="ocamlformat"
-ENV OCAML_TEST="alcotest ppx_inline_test ppx_expect qcheck"
+ENV OCAML_TEST="alcotest ppx_inline_test ppx_expect qcheck dscheck qcheck-stm qcheck-lin"
 ENV OCAML_LIBS="core base"
 ENV OCAML_PROFILE="landmarks memtrace runtime_events_tools printbox"
 ENV OCAML_TOOLS="${OCAML_BUILD} ${OCAML_TEST} ${OCAML_LIBS} ${OCAML_PROFILE}"

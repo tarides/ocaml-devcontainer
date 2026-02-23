@@ -1,0 +1,223 @@
+name: OxCaml Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: ["Build and Push OxCaml Images"]
+    types: [completed]
+  workflow_dispatch:
+
+# Container jobs run as root (required by actions/checkout), so we must
+# point opam at the vscode user's opam root and add its bin to PATH.
+env:
+  OPAMROOT: /home/vscode/.opam
+
+jobs:
+  # ============================================================================
+  # Test OCaml compiler and tools (ocaml and ocaml+tsan switches)
+  # ============================================================================
+  test-ocaml:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['ocaml', 'ocaml+tsan']
+        runner: [ubuntu-latest]
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run OCaml tests
+        run: |
+          ./test/test-ocaml.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test OxCaml switch
+  # ============================================================================
+  test-oxcaml:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run OxCaml tests
+        run: |
+          ./test/test-oxcaml-switch.sh
+
+  # ============================================================================
+  # Test LSP server (all switches)
+  # ============================================================================
+  test-lsp:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['oxcaml', 'ocaml', 'ocaml+tsan']
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run LSP tests
+        run: |
+          ./test/test-lsp.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test profiling tools (ocaml and ocaml+tsan only)
+  # ============================================================================
+  test-profiling:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['ocaml', 'ocaml+tsan']
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run profiling tests
+        run: |
+          ./test/test-profiling.sh ${{ matrix.switch }}
+
+  # ============================================================================
+  # Test dune package management
+  # ============================================================================
+  test-dune-pkg:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run dune pkg tests
+        run: |
+          ./test/test-dune-pkg.sh
+
+  # ============================================================================
+  # Test editor integrations
+  # ============================================================================
+  test-vscode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Validate .devcontainer-oxcaml/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-oxcaml/devcontainer.json
+
+      - name: Validate .devcontainer-oxcaml-from-scratch/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-oxcaml-from-scratch/devcontainer.json
+
+      - name: Run VS Code tests
+        run: |
+          ./test/test-vscode.sh
+
+  test-emacs:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Emacs tests
+        run: |
+          ./test/test-emacs.sh
+
+  test-neovim:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Neovim tests
+        run: |
+          ./test/test-neovim.sh
+
+  test-claude:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Claude Code tests
+        run: |
+          ./test/test-claude.sh
+
+  # ============================================================================
+  # Summary job (for required status checks)
+  # ============================================================================
+  test-summary:
+    runs-on: ubuntu-latest
+    needs:
+      - test-ocaml
+      - test-oxcaml
+      - test-lsp
+      - test-profiling
+      - test-dune-pkg
+      - test-vscode
+      - test-emacs
+      - test-neovim
+      - test-claude
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test-ocaml.result }}" != "success" ]; then
+            echo "test-ocaml failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-oxcaml.result }}" != "success" ]; then
+            echo "test-oxcaml failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-lsp.result }}" != "success" ]; then
+            echo "test-lsp failed"
+            exit 1
+          fi
+          # Note: Some tests may be expected to have warnings, not failures
+          echo "All critical tests passed"

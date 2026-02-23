@@ -120,6 +120,30 @@ Tips:
 - **Have a local fallback** — some venues have poor wifi; the DevContainer CLI workflow works offline once images are pulled
 - **Clean up after** — remind attendees to delete their Codespaces to avoid charges (`gh codespace delete --all`)
 
+## OxCaml variant
+
+An OxCaml variant is available with [Jane Street](https://www.janestreet.com/)'s [OxCaml](https://oxcaml.org/) compiler alongside standard OCaml. It includes three switches:
+
+| Switch | Description |
+|--------|-------------|
+| `oxcaml` | [OxCaml](https://github.com/oxcaml) 5.2.0+ox (default) — supports `local_` allocations and other OxCaml features |
+| `ocaml` | Standard [OCaml 5.4](https://ocaml.org/releases/5.4.0) |
+| `ocaml+tsan` | [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) for race detection |
+
+The OxCaml switch includes `await` and `parallel` packages from the [oxcaml opam repository](https://github.com/oxcaml/opam-repository).
+
+To use the OxCaml images:
+
+```bash
+# Pre-built image
+devcontainer up --workspace-folder . --config .devcontainer-oxcaml/devcontainer.json
+
+# Local build
+docker build -t oxcaml-devcontainer-base oxcaml-base/
+docker build -t oxcaml-devcontainer --build-arg BASE_IMAGE=oxcaml-devcontainer-base oxcaml-dev/
+devcontainer up --workspace-folder . --config .devcontainer-oxcaml-from-scratch/devcontainer.json
+```
+
 ## Hacking
 
 See [HACKING.md](HACKING.md) for building images, running tests, and CI details.

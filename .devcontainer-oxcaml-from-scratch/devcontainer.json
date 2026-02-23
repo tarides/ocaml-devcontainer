@@ -1,0 +1,45 @@
+{
+  "name": "OxCaml Development (Local Build)",
+
+  "build": {
+    "dockerfile": "../oxcaml-dev/Dockerfile",
+    "context": "..",
+    "args": {
+      "BASE_IMAGE": "oxcaml-devcontainer-base:latest"
+    }
+  },
+
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ocamllabs.ocaml-platform"
+      ],
+      "settings": {
+        "ocaml.sandbox": {
+          "kind": "opam",
+          "switch": "oxcaml"
+        }
+      }
+    }
+  },
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    "source=dune-cache,target=/home/vscode/.cache/dune,type=volume"
+  ],
+
+  "remoteEnv": {
+    "DUNE_CACHE_ROOT": "/home/vscode/.cache/dune"
+  },
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "64gb"
+  }
+}

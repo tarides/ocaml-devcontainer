@@ -16,11 +16,24 @@ Two-layer Docker image strategy for fast iteration:
 ocaml-devcontainer-base (compilers, ~35-50 min build, rebuild rare)
     └── ocaml-devcontainer (tools, ~15-20 min build, rebuild when tools update)
         └── [tutorial-specific] (optional, user-created, seconds to build)
+
+oxcaml-devcontainer-base (compilers, ~45-60 min build, rebuild rare)
+    └── oxcaml-devcontainer (tools, ~15-25 min build, rebuild when tools update)
+        └── [tutorial-specific] (optional, user-created, seconds to build)
 ```
+
+### OCaml images
 
 The base image creates both OCaml switches (compilers only). The dev image installs **identical tools** in both switches:
 - `5.4.0` - Standard compiler (default)
 - `5.4.0+tsan` - ThreadSanitizer variant for race detection
+
+### OxCaml images
+
+The base image creates 3 switches. The dev image installs tools in all switches (oxcaml switch has a different tool set):
+- `oxcaml` - Jane Street's OxCaml compiler (5.2.0+ox) via oxcaml/opam-repository (default)
+- `ocaml` - Standard OCaml 5.4.0
+- `ocaml+tsan` - ThreadSanitizer variant for race detection
 
 ## Build Commands
 
@@ -28,9 +41,13 @@ The base image creates both OCaml switches (compilers only). The dev image insta
 # IMPORTANT: TSan requires reduced ASLR entropy on the build host
 sudo sysctl -w vm.mmap_rnd_bits=28
 
-# Local build (for customization)
+# OCaml images
 docker build -t ocaml-devcontainer-base base/
 docker build -t ocaml-devcontainer dev/
+
+# OxCaml images
+docker build -t oxcaml-devcontainer-base oxcaml-base/
+docker build -t oxcaml-devcontainer --build-arg BASE_IMAGE=oxcaml-devcontainer-base oxcaml-dev/
 
 # Start container with pre-built images
 devcontainer up --workspace-folder .
@@ -53,9 +70,12 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-neovim.sh     # Neovim exec pathway + LSP
 ./test/test-emacs.sh      # Emacs TRAMP + eglot integration
 ./test/test-claude.sh     # Claude Code installation
+
+# OxCaml-specific
+./test/test-oxcaml-switch.sh  # OxCaml compiler, packages, local_ allocations
 ```
 
-CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
+CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]` for OCaml images, `[oxcaml, ocaml, ocaml+tsan]` for OxCaml images.
 
 ## Key Design Decisions
 
@@ -68,14 +88,18 @@ CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]`
 ## Project Structure
 
 ```
-base/                       # Dockerfile for ocaml-devcontainer-base (compilers only)
-dev/                        # Dockerfile for ocaml-devcontainer (full dev tools)
-.devcontainer/              # Uses pre-built images (fast startup)
-.devcontainer-from-scratch/ # Builds locally (for customization)
-test/                       # Integration test scripts
-examples/                   # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
-docs/                       # Setup guides (SETUP-VSCODE, SETUP-DEVCONTAINER-EXEC, SETUP-CODESPACES)
-HACKING.md                  # Building images, running tests, CI details
+base/                               # Dockerfile for ocaml-devcontainer-base (compilers only)
+dev/                                # Dockerfile for ocaml-devcontainer (full dev tools)
+oxcaml-base/                        # Dockerfile for oxcaml-devcontainer-base (3 compilers)
+oxcaml-dev/                         # Dockerfile for oxcaml-devcontainer (full dev tools)
+.devcontainer/                      # OCaml: uses pre-built images (fast startup)
+.devcontainer-from-scratch/         # OCaml: builds locally (for customization)
+.devcontainer-oxcaml/               # OxCaml: uses pre-built images (fast startup)
+.devcontainer-oxcaml-from-scratch/  # OxCaml: builds locally (for customization)
+test/                               # Integration test scripts
+examples/                           # Sample OCaml projects (hello, with-tests, dune-pkg-demo)
+docs/                               # Setup guides (SETUP-VSCODE, SETUP-DEVCONTAINER-EXEC, SETUP-CODESPACES)
+HACKING.md                          # Building images, running tests, CI details
 ```
 
 ## Configuration Placeholders

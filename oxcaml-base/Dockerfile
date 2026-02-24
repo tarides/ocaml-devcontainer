@@ -101,7 +101,8 @@ USER vscode
 WORKDIR /home/vscode
 
 # Initialize opam (disable sandboxing for container compatibility)
-RUN opam init --disable-sandboxing --auto-setup --yes
+# --bare: don't create a default switch (we create a named switch below)
+RUN opam init --disable-sandboxing --bare --yes
 
 # ============================================================================
 # OxCaml Switch

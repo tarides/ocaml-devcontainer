@@ -22,6 +22,15 @@ echo "--- Test 1: Verify switch exists ---"
 opam switch list | grep -q "$SWITCH" || { echo "FAIL: Switch $SWITCH not found"; exit 1; }
 echo "PASS: Switch $SWITCH exists"
 
+# Test 1b: Verify no spurious 'default' switch
+echo ""
+echo "--- Test 1b: No default switch ---"
+if opam switch list 2>/dev/null | grep -q "^default "; then
+    echo "FAIL: Spurious 'default' switch found"
+    exit 1
+fi
+echo "PASS: No default switch"
+
 # Test 2: Check compiler version
 echo ""
 echo "--- Test 2: Check compiler version ---"

@@ -19,6 +19,15 @@ echo "--- Test 1: Verify oxcaml switch exists ---"
 opam switch list | grep -q "oxcaml" || { echo "FAIL: Switch oxcaml not found"; exit 1; }
 echo "PASS: oxcaml switch exists"
 
+# Test 1b: Verify no spurious 'default' switch
+echo ""
+echo "--- Test 1b: No default switch ---"
+if opam switch list 2>/dev/null | grep -q "^default "; then
+    echo "FAIL: Spurious 'default' switch found"
+    exit 1
+fi
+echo "PASS: No default switch"
+
 # Test 2: Verify oxcaml compiler version (5.2.x)
 echo ""
 echo "--- Test 2: Check OxCaml compiler version ---"

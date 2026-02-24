@@ -77,6 +77,7 @@ cd "$TEMP_DIR"
 dune build
 OUTPUT=$(dune exec ./local_test.exe)
 echo "$OUTPUT" | grep -q "PASS" || { echo "FAIL: local_ allocation test failed"; echo "$OUTPUT"; exit 1; }
+cd /
 rm -rf "$TEMP_DIR"
 echo "PASS: OxCaml local_ allocations compile and run"
 

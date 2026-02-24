@@ -17,8 +17,8 @@ ocaml-devcontainer-base (compilers, ~35-50 min build, rebuild rare)
     └── ocaml-devcontainer (tools, ~15-20 min build, rebuild when tools update)
         └── [tutorial-specific] (optional, user-created, seconds to build)
 
-oxcaml-devcontainer-base (compilers, ~45-60 min build, rebuild rare)
-    └── oxcaml-devcontainer (tools, ~15-25 min build, rebuild when tools update)
+oxcaml-devcontainer-base (compiler, ~25-35 min build, rebuild rare)
+    └── oxcaml-devcontainer (tools, ~10-15 min build, rebuild when tools update)
         └── [tutorial-specific] (optional, user-created, seconds to build)
 ```
 
@@ -30,10 +30,8 @@ The base image creates both OCaml switches (compilers only). The dev image insta
 
 ### OxCaml images
 
-The base image creates 3 switches. The dev image installs tools in all switches (oxcaml switch has a different tool set):
-- `oxcaml` - Jane Street's OxCaml compiler (5.2.0+ox) via oxcaml/opam-repository (default)
-- `ocaml` - Standard OCaml 5.4.0
-- `ocaml+tsan` - ThreadSanitizer variant for race detection
+The base image creates a single switch. The dev image installs additional tools:
+- `oxcaml` - Jane Street's OxCaml compiler (5.2.0+ox) via oxcaml/opam-repository
 
 ## Build Commands
 
@@ -72,10 +70,10 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-claude.sh     # Claude Code installation
 
 # OxCaml-specific
-./test/test-oxcaml-switch.sh  # OxCaml compiler, packages, local_ allocations
+./test/test-oxcaml-switch.sh  # OxCaml compiler, packages, local_ allocations (oxcaml switch)
 ```
 
-CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]` for OCaml images, `[oxcaml, ocaml, ocaml+tsan]` for OxCaml images.
+CI runs matrix tests: `[5.4.0, 5.4.0+tsan] × [amd64, arm64]` for OCaml images, `oxcaml` switch only for OxCaml images.
 
 ## Key Design Decisions
 

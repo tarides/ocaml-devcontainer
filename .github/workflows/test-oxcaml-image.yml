@@ -17,29 +17,6 @@ env:
 
 jobs:
   # ============================================================================
-  # Test OCaml compiler and tools (ocaml and ocaml+tsan switches)
-  # ============================================================================
-  test-ocaml:
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        switch: ['ocaml', 'ocaml+tsan']
-        runner: [ubuntu-latest]
-
-    container:
-      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
-      options: --user root
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Run OCaml tests
-        run: |
-          ./test/test-ocaml.sh ${{ matrix.switch }}
-
-  # ============================================================================
   # Test OxCaml switch
   # ============================================================================
   test-oxcaml:
@@ -58,14 +35,10 @@ jobs:
           ./test/test-oxcaml-switch.sh
 
   # ============================================================================
-  # Test LSP server (all switches)
+  # Test LSP server
   # ============================================================================
   test-lsp:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        switch: ['oxcaml', 'ocaml', 'ocaml+tsan']
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
@@ -77,29 +50,7 @@ jobs:
 
       - name: Run LSP tests
         run: |
-          ./test/test-lsp.sh ${{ matrix.switch }}
-
-  # ============================================================================
-  # Test profiling tools (ocaml and ocaml+tsan only)
-  # ============================================================================
-  test-profiling:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        switch: ['ocaml', 'ocaml+tsan']
-
-    container:
-      image: ghcr.io/${{ github.repository_owner }}/oxcaml-devcontainer:latest
-      options: --user root
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Run profiling tests
-        run: |
-          ./test/test-profiling.sh ${{ matrix.switch }}
+          ./test/test-lsp.sh oxcaml
 
   # ============================================================================
   # Test dune package management
@@ -193,10 +144,8 @@ jobs:
   test-summary:
     runs-on: ubuntu-latest
     needs:
-      - test-ocaml
       - test-oxcaml
       - test-lsp
-      - test-profiling
       - test-dune-pkg
       - test-vscode
       - test-emacs
@@ -207,10 +156,6 @@ jobs:
     steps:
       - name: Check test results
         run: |
-          if [ "${{ needs.test-ocaml.result }}" != "success" ]; then
-            echo "test-ocaml failed"
-            exit 1
-          fi
           if [ "${{ needs.test-oxcaml.result }}" != "success" ]; then
             echo "test-oxcaml failed"
             exit 1

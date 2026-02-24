@@ -13,13 +13,11 @@ echo "Activating switch oxcaml..."
 opam switch oxcaml
 eval $(opam env)
 
-# Test 1: Verify all 3 switches exist
+# Test 1: Verify oxcaml switch exists
 echo ""
-echo "--- Test 1: Verify all switches exist ---"
+echo "--- Test 1: Verify oxcaml switch exists ---"
 opam switch list | grep -q "oxcaml" || { echo "FAIL: Switch oxcaml not found"; exit 1; }
-opam switch list | grep -q "ocaml " || { echo "FAIL: Switch ocaml not found"; exit 1; }
-opam switch list | grep -q "ocaml+tsan" || { echo "FAIL: Switch ocaml+tsan not found"; exit 1; }
-echo "PASS: All 3 switches exist"
+echo "PASS: oxcaml switch exists"
 
 # Test 2: Verify oxcaml compiler version (5.2.x)
 echo ""

@@ -1,11 +1,11 @@
-# OxCaml + OCaml 5.4 Base Image
-# Contains: OxCaml compiler, OCaml 5.4.0, OCaml 5.4.0+tsan, system tools, editors
-# Build time: ~45-60 min (multi-arch)
+# OxCaml Base Image
+# Contains: OxCaml compiler, system tools, editors
+# Build time: ~25-35 min (multi-arch)
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
 LABEL org.opencontainers.image.source="https://github.com/tarides/ocaml-devcontainer"
-LABEL org.opencontainers.image.description="OxCaml + OCaml 5.4 development base image"
+LABEL org.opencontainers.image.description="OxCaml development base image"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Avoid interactive prompts during package installation
@@ -104,11 +104,8 @@ WORKDIR /home/vscode
 RUN opam init --disable-sandboxing --auto-setup --yes
 
 # ============================================================================
-# OCaml Switches
+# OxCaml Switch
 # ============================================================================
-
-# OCaml platform tools for ocaml and ocaml+tsan switches
-ENV OCAML_PLATFORM="dune ocaml-lsp-server merlin utop odoc"
 
 # OxCaml platform tools (utop and odoc don't compile with OxCaml yet)
 ENV OXCAML_PLATFORM="dune ocaml-lsp-server merlin"
@@ -118,20 +115,6 @@ RUN opam switch create oxcaml \
     --repos "ox=git+https://github.com/oxcaml/opam-repository.git,default" \
     ocaml-variants.5.2.0+ox --yes && \
     opam install -y ${OXCAML_PLATFORM}
-
-# Create standard OCaml 5.4.0 switch and install platform tools
-RUN opam switch create ocaml ocaml-base-compiler.5.4.0 --yes && \
-    opam install -y ${OCAML_PLATFORM}
-
-# Create ThreadSanitizer switch for race detection and install platform tools
-# IMPORTANT: Building TSan requires reduced ASLR entropy on the host:
-#   sudo sysctl -w vm.mmap_rnd_bits=28
-# See: https://github.com/google/sanitizers/issues/1716
-RUN opam switch create ocaml+tsan ocaml-variants.5.4.0+options ocaml-option-tsan --yes && \
-    opam install -y ${OCAML_PLATFORM}
-
-# Set default switch to oxcaml
-RUN opam switch set oxcaml
 
 # ============================================================================
 # Shell Configuration

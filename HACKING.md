@@ -11,8 +11,8 @@ ocaml-devcontainer-base   (~35-50 min, compilers + system tools, rebuild rare)
     └── ocaml-devcontainer  (~15-20 min, opam packages, rebuild when tools update)
         └── [tutorial-specific]  (seconds, user-created FROM image)
 
-oxcaml-devcontainer-base  (~45-60 min, 3 compilers + system tools, rebuild rare)
-    └── oxcaml-devcontainer (~15-25 min, opam packages, rebuild when tools update)
+oxcaml-devcontainer-base  (~25-35 min, OxCaml compiler + system tools, rebuild rare)
+    └── oxcaml-devcontainer (~10-15 min, opam packages, rebuild when tools update)
         └── [tutorial-specific]  (seconds, user-created FROM image)
 ```
 
@@ -23,8 +23,8 @@ oxcaml-devcontainer-base  (~45-60 min, 3 compilers + system tools, rebuild rare)
 
 ### OxCaml images
 
-- **Base image** (`oxcaml-base/Dockerfile`): Same system dependencies as the OCaml base image. Three switches: `oxcaml` ([OxCaml](https://github.com/oxcaml) 5.2.0+ox via [oxcaml/opam-repository](https://github.com/oxcaml/opam-repository), default), `ocaml` (5.4.0), `ocaml+tsan` (5.4.0+tsan). Platform tools in all switches.
-- **Dev image** (`oxcaml-dev/Dockerfile`): The `ocaml` and `ocaml+tsan` switches get the same tools as the standard dev image. The `oxcaml` switch gets [core](https://github.com/janestreet/core), [base](https://github.com/janestreet/base), `await`, `parallel`, [alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect).
+- **Base image** (`oxcaml-base/Dockerfile`): Same system dependencies as the OCaml base image. Single `oxcaml` switch ([OxCaml](https://github.com/oxcaml) 5.2.0+ox via [oxcaml/opam-repository](https://github.com/oxcaml/opam-repository)) with platform tools.
+- **Dev image** (`oxcaml-dev/Dockerfile`): [core](https://github.com/janestreet/core), [base](https://github.com/janestreet/base), `await`, `parallel`, [alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect).
 
 All images are published to [Docker Hub](https://hub.docker.com/r/cuihtlauac/ocaml-devcontainer) and [GHCR](https://github.com/tarides/ocaml-devcontainer/pkgs/container/ocaml-devcontainer) as multi-arch (amd64 + arm64) manifests.
 
@@ -50,10 +50,10 @@ docker build -t ocaml-devcontainer-base base/
 # Build OCaml dev image (tools — takes ~15-20 min)
 docker build -t ocaml-devcontainer dev/
 
-# Build OxCaml base image (3 compilers — takes ~45-60 min)
+# Build OxCaml base image (OxCaml compiler — takes ~25-35 min)
 docker build -t oxcaml-devcontainer-base oxcaml-base/
 
-# Build OxCaml dev image (tools — takes ~15-25 min)
+# Build OxCaml dev image (tools — takes ~10-15 min)
 docker build -t oxcaml-devcontainer --build-arg BASE_IMAGE=oxcaml-devcontainer-base oxcaml-dev/
 ```
 
@@ -115,7 +115,7 @@ Matrix: `[5.4.0, 5.4.0+tsan]` for test-ocaml, test-lsp, test-profiling. Other te
 
 Triggered on push/PR to `main` and after successful OxCaml image builds.
 
-Matrix: `[ocaml, ocaml+tsan]` for test-ocaml and test-profiling. `[oxcaml, ocaml, ocaml+tsan]` for test-lsp. test-oxcaml-switch runs once on the oxcaml switch.
+Tests run on the single `oxcaml` switch: test-oxcaml-switch and test-lsp.
 
 ### Required secrets
 

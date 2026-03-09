@@ -192,6 +192,51 @@ jobs:
           push: never
 
   # ============================================================================
+  # Test devcontainer workflow with Podman (smoke test)
+  # ============================================================================
+  test-podman:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Replace Docker with Podman
+        run: |
+          # Stop Docker (mirrors a system without Docker installed)
+          sudo systemctl disable --now docker.service docker.socket containerd.service
+          sudo rm /usr/bin/docker
+          # Alias podman as docker (same as macOS Homebrew setup)
+          sudo ln -s /usr/bin/podman /usr/bin/docker
+          # Start Podman API socket for devcontainer CLI
+          sudo systemctl start podman.socket
+          echo "DOCKER_HOST=unix:///run/podman/podman.sock" >> "$GITHUB_ENV"
+
+      - name: Verify Podman as Docker
+        run: |
+          docker --version
+          docker info
+
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Start devcontainer with Podman
+        run: devcontainer up --workspace-folder .
+
+      - name: Run smoke tests
+        run: |
+          devcontainer exec --workspace-folder . ocaml -version
+          devcontainer exec --workspace-folder . dune --version
+          devcontainer exec --workspace-folder . opam switch list
+          devcontainer exec --workspace-folder . bash -c \
+            'cd examples/hello && dune build && dune exec ./hello.exe'
+
+      - name: Clean up
+        if: always()
+        run: |
+          docker stop $(docker ps -q) 2>/dev/null || true
+
+  # ============================================================================
   # Summary job (for required status checks)
   # ============================================================================
   test-summary:
@@ -206,6 +251,7 @@ jobs:
       - test-neovim
       - test-claude
       - test-devcontainer
+      - test-podman
     if: always()
 
     steps:
@@ -222,6 +268,9 @@ jobs:
           if [ "${{ needs.test-devcontainer.result }}" != "success" ]; then
             echo "test-devcontainer failed"
             exit 1
+          fi
+          if [ "${{ needs.test-podman.result }}" != "success" ]; then
+            echo "::warning::test-podman failed (Podman support is best-effort)"
           fi
           # Note: Some tests may be expected to have warnings, not failures
           echo "All critical tests passed"

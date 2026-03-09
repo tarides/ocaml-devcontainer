@@ -15,6 +15,14 @@ Use your preferred editor ([Vim](https://www.vim.org/), [Emacs](https://www.gnu.
 > [configure npm's default directory](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally)
 > or install with your system package manager (e.g. `sudo apt install nodejs npm`).
 
+> **Podman alternative:** On macOS, [Podman](https://podman.io/) works as a
+> drop-in replacement for Docker Desktop. Install it via `brew install podman`,
+> then create a `docker` alias so the DevContainer CLI finds it:
+> ```bash
+> sudo ln -s $(which podman) /usr/local/bin/docker
+> ```
+> See [this guide](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers) for details.
+
 ## Quick start
 
 ```bash

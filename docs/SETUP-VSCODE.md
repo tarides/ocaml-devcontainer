@@ -10,6 +10,14 @@ Native [VS Code](https://code.visualstudio.com/) integration with the [Dev Conta
 - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Docker](https://docs.docker.com/get-started/get-docker/) installed and running
 
+> **Podman alternative:** On macOS, [Podman](https://podman.io/) works as a
+> drop-in replacement for Docker Desktop. Install it via `brew install podman`,
+> then create a `docker` alias so the DevContainer CLI finds it:
+> ```bash
+> sudo ln -s $(which podman) /usr/local/bin/docker
+> ```
+> See [this guide](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers) for details.
+
 ## Quick start
 
 1. Clone the repository:

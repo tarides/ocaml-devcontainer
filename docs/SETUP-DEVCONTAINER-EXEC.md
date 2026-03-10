@@ -21,7 +21,7 @@ Use your preferred editor ([Vim](https://www.vim.org/), [Emacs](https://www.gnu.
 > ```bash
 > sudo ln -s $(which podman) /usr/local/bin/docker
 > ```
-> See [this guide](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers) for details.
+> See [From Docker to Podman: VS Code DevContainers](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers) for details.
 
 ## Quick start
 

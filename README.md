@@ -15,7 +15,7 @@ A ready-to-use [OCaml](https://ocaml.org/) 5.4 development environment packaged 
 This is for you if:
 - You use VS Code as your primary editor
 - You want graphical IDE features (hover types, diagnostics, go-to-definition)
-- You have [Docker](https://docs.docker.com/get-started/get-docker/) installed locally
+- You have [Docker](https://docs.docker.com/get-started/get-docker/) (or [Podman](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers)) installed locally
 
 ```bash
 git clone https://github.com/tarides/ocaml-devcontainer.git
@@ -30,7 +30,7 @@ code ocaml-devcontainer
 This is for you if:
 - You prefer [Vim](https://www.vim.org/), [Emacs](https://www.gnu.org/software/emacs/), [Neovim](https://neovim.io/), or another terminal editor
 - You want to use [Claude Code](https://docs.anthropic.com/en/docs/claude-code) inside the container
-- You have [Docker](https://docs.docker.com/get-started/get-docker/) and [Node.js](https://nodejs.org/) installed locally
+- You have [Docker](https://docs.docker.com/get-started/get-docker/) (or [Podman](https://blog.okikio.dev/from-docker-to-podman-vs-code-devcontainers)) and [Node.js](https://nodejs.org/) installed locally
 
 ```bash
 npm install -g @devcontainers/cli

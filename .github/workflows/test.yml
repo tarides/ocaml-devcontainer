@@ -220,6 +220,14 @@ jobs:
       - name: Install devcontainer CLI
         run: npm install -g @devcontainers/cli
 
+      - name: Fix workspace permissions for Podman
+        run: |
+          # Rootful Podman maps UIDs 1:1; the container's vscode user (UID 1000)
+          # needs write access to the workspace owned by runner (UID 1001).
+          # Docker's updateRemoteUserUID handles this automatically but Podman
+          # does not, so we open permissions on the workspace.
+          chmod -R a+rwX .
+
       - name: Start devcontainer with Podman
         run: devcontainer up --workspace-folder .
 

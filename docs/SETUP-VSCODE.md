@@ -44,7 +44,6 @@ The [OCaml Platform extension](https://marketplace.visualstudio.com/items?itemNa
 - Type information on hover
 - Go to definition
 - Find references
-- Code formatting ([ocamlformat](https://github.com/ocaml-ppx/ocamlformat))
 - Error diagnostics
 
 ## Switching OCaml versions
@@ -94,7 +93,6 @@ dune build  # Build first to generate .merlin files
 ## Tips
 
 - Use `Ctrl+Shift+P` → "OCaml: Restart Language Server" if LSP gets confused
-- The OCaml extension respects `.ocamlformat` files
 - Use the "Problems" panel to see all errors and warnings
 
 ---

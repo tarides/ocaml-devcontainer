@@ -111,11 +111,10 @@ Before deployment, set up GitHub repository secrets:
 Tools are defined once and installed identically in both switches:
 
 ```dockerfile
-ENV OCAML_BUILD="dune ocaml-lsp-server merlin ocamlformat utop odoc"
 ENV OCAML_TEST="alcotest ppx_inline_test ppx_expect qcheck bisect_ppx"
-ENV OCAML_LIBS="core base"
+ENV OCAML_LIBS="base"
 ENV OCAML_PROFILE="landmarks landmarks-ppx memtrace runtime_events_tools printbox"
-ENV OCAML_TOOLS="$OCAML_BUILD $OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"
+ENV OCAML_TOOLS="$OCAML_TEST $OCAML_LIBS $OCAML_PROFILE"
 
 RUN opam install --switch=5.4.0 -y $OCAML_TOOLS && \
     opam install --switch=5.4.0+tsan -y $OCAML_TOOLS && \

@@ -22,7 +22,7 @@ See [cuihtlauac/ocaml-devcontainer](https://hub.docker.com/r/cuihtlauac/ocaml-de
 - OCaml 5.4.0+tsan compiler (ThreadSanitizer variant)
 - opam package manager
 
-The dev image (`cuihtlauac/ocaml-devcontainer`) builds on top of this base and adds dune, LSP, merlin, ocamlformat, utop, testing and profiling tools.
+The dev image (`cuihtlauac/ocaml-devcontainer`) builds on top of this base and adds testing, profiling and library packages.
 
 ## Source
 

@@ -28,7 +28,7 @@ devcontainer exec --workspace-folder . dune build
 ## What's Included
 
 - **OCaml 5.4** with standard and ThreadSanitizer variants
-- **Build**: dune, ocaml-lsp-server, merlin, ocamlformat, utop, odoc
+- **Build**: dune, ocaml-lsp-server, merlin, utop
 - **Testing**: alcotest, ppx_expect, qcheck
 - **Profiling**: landmarks, memtrace, olly
 - **Editors**: VS Code, Vim, Emacs, Neovim, Claude Code

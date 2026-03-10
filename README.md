@@ -87,10 +87,10 @@ eval $(opam env)
 | Category | Tools |
 |----------|-------|
 | **Compilers** | [OCaml](https://ocaml.org/) 5.4.0, OCaml 5.4.0+tsan |
-| **Build & dev** | [dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [ocamlformat](https://github.com/ocaml-ppx/ocamlformat), [utop](https://github.com/ocaml-community/utop), [odoc](https://ocaml.github.io/odoc/) |
+| **Build & dev** | [dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [utop](https://github.com/ocaml-community/utop) |
 | **Testing** | [alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect), [qcheck](https://github.com/c-cube/qcheck) |
 | **Profiling** | [landmarks](https://github.com/LexiFi/landmarks), [memtrace](https://github.com/janestreet/memtrace), [runtime_events_tools](https://github.com/tarides/runtime_events_tools) (olly), [printbox](https://github.com/c-cube/printbox) |
-| **Libraries** | [core](https://github.com/janestreet/core), [base](https://github.com/janestreet/base) |
+| **Libraries** | [base](https://github.com/janestreet/base) |
 | **Debugging** | [gdb](https://sourceware.org/gdb/), [lldb](https://lldb.llvm.org/), [valgrind](https://valgrind.org/), [rr](https://rr-project.org/), [perf](https://perf.wiki.kernel.org/), [strace](https://strace.io/), [ltrace](https://man7.org/linux/man-pages/man1/ltrace.1.html), [bpftrace](https://github.com/bpftrace/bpftrace), [hyperfine](https://github.com/sharkdp/hyperfine) |
 | **Editors** | [vim](https://www.vim.org/), [emacs](https://www.gnu.org/software/emacs/) |
 
@@ -99,9 +99,7 @@ eval $(opam env)
 ```bash
 dune build           # Build the project
 dune test            # Run tests
-dune fmt             # Format code (ocamlformat)
 utop                 # Interactive REPL
-odoc                 # Generate documentation
 ```
 
 ## For tutorial and workshop authors

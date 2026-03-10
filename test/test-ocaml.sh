@@ -88,7 +88,7 @@ echo "PASS: dune runtest works"
 # Test 6: Verify all tools present
 echo ""
 echo "--- Test 6: Verify tools installed ---"
-TOOLS="ocamlformat utop ocamlmerlin ocamllsp odoc"
+TOOLS="utop ocamlmerlin ocamllsp"
 for tool in $TOOLS; do
     if command -v "$tool" &> /dev/null; then
         echo "  $tool: $(which $tool)"

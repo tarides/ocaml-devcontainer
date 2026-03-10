@@ -74,21 +74,7 @@ COMPLETION_RESULT=$("$LSP_CLIENT" completion complete.ml 0 16 2>&1)
 echo "$COMPLETION_RESULT" | grep -q '"items"' || echo "$COMPLETION_RESULT" | grep -q '"result"' || { echo "WARN: Completion response format may vary"; }
 echo "PASS: Completion request completed"
 
-# Test 4: Formatting request
-echo ""
-echo "--- Test 4: Formatting request ---"
-cat > "$TEMP_DIR/format.ml" << 'EOF'
-let x=1+2
-let   y   =   3
-EOF
-
-# Create .ocamlformat file
-echo "version = 0.26.2" > "$TEMP_DIR/.ocamlformat"
-
-FORMAT_RESULT=$("$LSP_CLIENT" format format.ml 2>&1)
-echo "PASS: Formatting request completed"
-
-# Test 5: Shutdown
+# Test 4: Shutdown
 echo ""
 echo "--- Test 5: Clean shutdown ---"
 SHUTDOWN_RESULT=$("$LSP_CLIENT" shutdown 2>&1)

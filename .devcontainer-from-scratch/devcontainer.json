@@ -2,7 +2,7 @@
   "name": "OCaml Development (Local Build)",
 
   // Required for TSan: allows sysctl -w vm.mmap_rnd_bits=28 at startup
-  "runArgs": ["--privileged"],
+  "privileged": true,
 
   "build": {
     "dockerfile": "../dev/Dockerfile",

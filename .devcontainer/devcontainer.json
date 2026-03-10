@@ -5,7 +5,7 @@
   "image": "cuihtlauac/ocaml-devcontainer:latest",
 
   // Required for TSan: allows sysctl -w vm.mmap_rnd_bits=28 at startup
-  "runArgs": ["--privileged"],
+  "privileged": true,
 
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}

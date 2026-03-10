@@ -16,6 +16,21 @@ echo "Activating switch $SWITCH..."
 opam switch "$SWITCH"
 eval $(opam env)
 
+# Test 0 (TSan only): Check ASLR entropy is compatible with ThreadSanitizer
+if echo "$SWITCH" | grep -q "tsan"; then
+  echo ""
+  echo "--- Test 0: Check vm.mmap_rnd_bits for TSan ---"
+  MMAP_RND_BITS=$(cat /proc/sys/vm/mmap_rnd_bits 2>/dev/null || echo "unknown")
+  echo "vm.mmap_rnd_bits = $MMAP_RND_BITS"
+  if [ "$MMAP_RND_BITS" != "unknown" ] && [ "$MMAP_RND_BITS" -gt 28 ]; then
+    echo "FAIL: vm.mmap_rnd_bits=$MMAP_RND_BITS is too high for TSan (max 28)"
+    echo "Fix: sudo sysctl -w vm.mmap_rnd_bits=28"
+    echo "See: https://github.com/google/sanitizers/issues/1716"
+    exit 1
+  fi
+  echo "PASS: ASLR entropy compatible with TSan"
+fi
+
 # Test 1: Verify switch exists
 echo ""
 echo "--- Test 1: Verify switch exists ---"

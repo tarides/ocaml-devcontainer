@@ -31,11 +31,18 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
-      options: --user root
+      # TSan requires --privileged to set vm.mmap_rnd_bits kernel parameter
+      options: >-
+        --user root
+        ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Configure ASLR for TSan
+        if: contains(matrix.switch, 'tsan')
+        run: sysctl -w vm.mmap_rnd_bits=28
 
       - name: Run OCaml tests
         run: |
@@ -53,11 +60,17 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
-      options: --user root
+      options: >-
+        --user root
+        ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Configure ASLR for TSan
+        if: contains(matrix.switch, 'tsan')
+        run: sysctl -w vm.mmap_rnd_bits=28
 
       - name: Run LSP tests
         run: |
@@ -75,11 +88,17 @@ jobs:
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
-      options: --user root
+      options: >-
+        --user root
+        ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Configure ASLR for TSan
+        if: contains(matrix.switch, 'tsan')
+        run: sysctl -w vm.mmap_rnd_bits=28
 
       - name: Run profiling tests
         run: |

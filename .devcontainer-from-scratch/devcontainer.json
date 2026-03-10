@@ -27,6 +27,8 @@
     }
   },
 
+  "postStartCommand": "bash .devcontainer/fix-tsan-aslr.sh",
+
   "remoteUser": "vscode",
 
   "mounts": [

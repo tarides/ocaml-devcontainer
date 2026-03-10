@@ -22,7 +22,7 @@
     }
   },
 
-  "postStartCommand": "bash .devcontainer/hide-codespaces-badge.sh",
+  "postStartCommand": "bash .devcontainer/fix-tsan-aslr.sh; bash .devcontainer/hide-codespaces-badge.sh",
 
   "remoteUser": "vscode",
 

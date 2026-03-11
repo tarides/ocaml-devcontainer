@@ -70,12 +70,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Reduce ASLR entropy for TSan build
-        # TSan requires lower ASLR entropy to avoid memory mapping collisions
-        # Native runners allow this sysctl to take effect (unlike BuildKit containers)
-        # See: https://github.com/google/sanitizers/issues/1716
-        run: sudo sysctl -w vm.mmap_rnd_bits=28
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -125,9 +119,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
-      - name: Reduce ASLR entropy for TSan build
-        run: sudo sysctl -w vm.mmap_rnd_bits=28
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

@@ -1,0 +1,195 @@
+name: Build and Push TSan Image
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - 'tsan/**'
+      - '.github/workflows/build-push-tsan.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tsan/**'
+  workflow_run:
+    workflows: ["Build and Push Images"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DOCKER_HUB_TSAN: ${{ secrets.DOCKERHUB_USERNAME }}/ocaml-devcontainer-tsan
+  GHCR_TSAN: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-tsan
+  GHCR_DEV: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer
+
+jobs:
+  # ============================================================================
+  # Build TSan Images (parallel per architecture)
+  # ============================================================================
+  build-tsan-amd64:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Reduce ASLR entropy for TSan build
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push TSan image (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tsan
+          file: ./tsan/Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.GHCR_TSAN }}:latest-amd64
+            ${{ env.DOCKER_HUB_TSAN }}:latest-amd64
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            BASE_IMAGE=${{ env.GHCR_DEV }}:latest-amd64
+          cache-from: type=gha,scope=tsan-amd64
+          cache-to: type=gha,mode=max,scope=tsan-amd64
+
+  build-tsan-arm64:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Reduce ASLR entropy for TSan build
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push TSan image (arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tsan
+          file: ./tsan/Dockerfile
+          platforms: linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.GHCR_TSAN }}:latest-arm64
+            ${{ env.DOCKER_HUB_TSAN }}:latest-arm64
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            BASE_IMAGE=${{ env.GHCR_DEV }}:latest-arm64
+          cache-from: type=gha,scope=tsan-arm64
+          cache-to: type=gha,mode=max,scope=tsan-arm64
+
+  # ============================================================================
+  # Merge TSan Image Tags into Multi-Arch Manifest
+  # ============================================================================
+  merge-tsan:
+    needs: [build-tsan-amd64, build-tsan-arm64]
+    if: |
+      always() &&
+      needs.build-tsan-amd64.result == 'success' &&
+      needs.build-tsan-arm64.result == 'success' &&
+      github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push multi-arch manifest (GHCR)
+        run: |
+          docker buildx imagetools create -t ${{ env.GHCR_TSAN }}:latest \
+            ${{ env.GHCR_TSAN }}:latest-amd64 \
+            ${{ env.GHCR_TSAN }}:latest-arm64
+
+          # Add version tag if this is a release
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            docker buildx imagetools create -t ${{ env.GHCR_TSAN }}:${VERSION} \
+              ${{ env.GHCR_TSAN }}:latest-amd64 \
+              ${{ env.GHCR_TSAN }}:latest-arm64
+          fi
+
+      - name: Create and push multi-arch manifest (Docker Hub)
+        run: |
+          docker buildx imagetools create -t ${{ env.DOCKER_HUB_TSAN }}:latest \
+            ${{ env.DOCKER_HUB_TSAN }}:latest-amd64 \
+            ${{ env.DOCKER_HUB_TSAN }}:latest-arm64
+
+          # Add version tag if this is a release
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            docker buildx imagetools create -t ${{ env.DOCKER_HUB_TSAN }}:${VERSION} \
+              ${{ env.DOCKER_HUB_TSAN }}:latest-amd64 \
+              ${{ env.DOCKER_HUB_TSAN }}:latest-arm64
+          fi
+
+      - name: Verify multi-arch manifest
+        run: |
+          echo "=== GHCR TSan Image ==="
+          docker buildx imagetools inspect ${{ env.GHCR_TSAN }}:latest
+          echo ""
+          echo "=== Docker Hub TSan Image ==="
+          docker buildx imagetools inspect ${{ env.DOCKER_HUB_TSAN }}:latest

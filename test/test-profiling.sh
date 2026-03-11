@@ -1,11 +1,11 @@
 #!/bin/bash
 # Test OCaml profiling tools
 # Usage: test-profiling.sh [switch]
-# Default switch: 5.4.0
+# Default switch: ocaml
 
 set -e
 
-SWITCH="${1:-5.4.0}"
+SWITCH="${1:-ocaml}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=== Testing profiling tools for switch: $SWITCH ==="

@@ -16,13 +16,13 @@
       "settings": {
         "ocaml.sandbox": {
           "kind": "opam",
-          "switch": "5.4.0"
+          "switch": "ocaml"
         }
       }
     }
   },
 
-  "postStartCommand": "bash .devcontainer/fix-tsan-aslr.sh; bash .devcontainer/hide-codespaces-badge.sh",
+  "postStartCommand": "bash .devcontainer/hide-codespaces-badge.sh",
 
   "remoteUser": "vscode",
 

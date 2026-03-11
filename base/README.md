@@ -1,6 +1,6 @@
 # OCaml DevContainer Base
 
-Base image containing OCaml compilers only. **This is not the image you want to use directly.**
+Base image containing the OCaml compiler only. **This is not the image you want to use directly.**
 
 ## Use the dev image instead
 
@@ -18,11 +18,10 @@ See [cuihtlauac/ocaml-devcontainer](https://hub.docker.com/r/cuihtlauac/ocaml-de
 
 ## What this base image contains
 
-- OCaml 5.4.0 compiler
-- OCaml 5.4.0+tsan compiler (ThreadSanitizer variant)
+- OCaml 5.4.0 compiler (switch name: `ocaml`)
 - opam package manager
 
-The dev image (`cuihtlauac/ocaml-devcontainer`) builds on top of this base and adds testing, profiling and library packages.
+The dev image (`cuihtlauac/ocaml-devcontainer`) builds on top of this base and adds testing, profiling and library packages. The TSan variant (`cuihtlauac/ocaml-devcontainer-tsan`) builds on top of the dev image and adds an `ocaml+tsan` switch.
 
 ## Source
 

@@ -1,13 +1,8 @@
 {
-  "name": "OCaml Development (Local Build)",
-
-  "build": {
-    "dockerfile": "../dev/Dockerfile",
-    "context": "..",
-    "args": {
-      "BASE_IMAGE": "ocaml-devcontainer-base:latest"
-    }
-  },
+  "name": "OCaml Development (TSan)",
+  // Pre-built image from Docker Hub. Also available on GHCR:
+  // ghcr.io/tarides/ocaml-devcontainer-tsan:latest
+  "image": "cuihtlauac/ocaml-devcontainer-tsan:latest",
 
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
@@ -26,6 +21,8 @@
       }
     }
   },
+
+  "postStartCommand": "bash .devcontainer-tsan/fix-tsan-aslr.sh",
 
   "remoteUser": "vscode",
 

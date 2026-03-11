@@ -1,5 +1,5 @@
 #!/bin/bash
-# Fix ASLR entropy for TSan-instrumented binaries (OCaml 5.4.0+tsan switch).
+# Fix ASLR entropy for TSan-instrumented binaries (ocaml+tsan switch).
 # TSan requires vm.mmap_rnd_bits <= 28; modern kernels default to 32.
 # See: https://github.com/google/sanitizers/issues/1716
 
@@ -19,7 +19,7 @@ fi
 if setarch "$(uname -m)" --addr-no-randomize /bin/true 2>/dev/null; then
   sudo tee /etc/profile.d/fix-tsan-aslr.sh >/dev/null <<'EOF'
 # Disable ASLR so ThreadSanitizer-instrumented binaries can run.
-# Installed by .devcontainer/fix-tsan-aslr.sh — safe to remove.
+# Installed by .devcontainer-tsan/fix-tsan-aslr.sh — safe to remove.
 if [ -z "$TSAN_ASLR_FIXED" ]; then
   mmap_rnd_bits=$(cat /proc/sys/vm/mmap_rnd_bits 2>/dev/null || echo 0)
   if [ "$mmap_rnd_bits" -gt 28 ]; then
@@ -33,4 +33,4 @@ EOF
 fi
 
 echo "WARNING: Cannot fix ASLR entropy for TSan (vm.mmap_rnd_bits=$MMAP_RND_BITS)."
-echo "The 5.4.0+tsan switch may not work. See: https://github.com/google/sanitizers/issues/1716"
+echo "The ocaml+tsan switch may not work. See: https://github.com/google/sanitizers/issues/1716"

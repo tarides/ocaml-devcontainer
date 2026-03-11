@@ -46,20 +46,22 @@ The [OCaml Platform extension](https://marketplace.visualstudio.com/items?itemNa
 - Find references
 - Error diagnostics
 
-## Switching OCaml versions
+## Using the TSan variant
 
-Click the [opam](https://opam.ocaml.org/) switch name in the bottom status bar and select the desired switch from the picker. The extension reloads automatically.
+For ThreadSanitizer support, open the `.devcontainer-tsan/` configuration:
 
-Alternatively, use the terminal:
+1. Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+2. Select the "OCaml Development (TSan)" configuration
 
-1. Run:
-   ```bash
-   opam switch 5.4.0+tsan
-   eval $(opam env)
-   ```
-2. Reload the window (`Ctrl+Shift+P` → "Developer: Reload Window") so the extension picks up the new switch
+Then switch to the TSan compiler:
+```bash
+opam switch ocaml+tsan
+eval $(opam env)
+```
 
-See the [README](../README.md#ocaml-switches) for the list of available switches.
+Reload the window (`Ctrl+Shift+P` → "Developer: Reload Window") so the extension picks up the new switch.
+
+See the [README](../README.md#using-the-tsan-variant) for details.
 
 ## Debugging
 

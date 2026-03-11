@@ -4,12 +4,13 @@ Notes for maintainers and contributors.
 
 ## Image architecture
 
-Two-layer Docker image strategy for fast iteration:
+Three-layer Docker image strategy for fast iteration:
 
 ```
-ocaml-devcontainer-base   (~35-50 min, compilers + system tools, rebuild rare)
+ocaml-devcontainer-base   (~20-30 min, compiler + system tools, rebuild rare)
     └── ocaml-devcontainer  (~15-20 min, opam packages, rebuild when tools update)
-        └── [tutorial-specific]  (seconds, user-created FROM image)
+        ├── [tutorial-specific]  (seconds, user-created FROM image)
+        └── ocaml-devcontainer-tsan  (~20-30 min, adds ocaml+tsan switch)
 
 oxcaml-devcontainer-base  (~25-35 min, OxCaml compiler + system tools, rebuild rare)
     └── oxcaml-devcontainer (~10-15 min, opam packages, rebuild when tools update)
@@ -18,8 +19,9 @@ oxcaml-devcontainer-base  (~25-35 min, OxCaml compiler + system tools, rebuild r
 
 ### OCaml images
 
-- **Base image** (`base/Dockerfile`): [Ubuntu 24.04](https://releases.ubuntu.com/24.04/), [opam](https://opam.ocaml.org/), two OCaml switches (5.4.0 and 5.4.0+[tsan](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual)), platform tools ([dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [utop](https://github.com/ocaml-community/utop)), editors ([vim](https://www.vim.org/), [emacs-nox](https://www.gnu.org/software/emacs/)), debugging tools ([gdb](https://sourceware.org/gdb/), [lldb](https://lldb.llvm.org/), [valgrind](https://valgrind.org/), [rr](https://rr-project.org/), [perf](https://perf.wiki.kernel.org/), [strace](https://strace.io/), [ltrace](https://man7.org/linux/man-pages/man1/ltrace.1.html), [bpftrace](https://github.com/bpftrace/bpftrace), [hyperfine](https://github.com/sharkdp/hyperfine)).
+- **Base image** (`base/Dockerfile`): [Ubuntu 24.04](https://releases.ubuntu.com/24.04/), [opam](https://opam.ocaml.org/), single `ocaml` switch ([OCaml 5.4.0](https://ocaml.org/releases/5.4.0)), platform tools ([dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [utop](https://github.com/ocaml-community/utop)), editors ([vim](https://www.vim.org/), [emacs-nox](https://www.gnu.org/software/emacs/)), debugging tools ([gdb](https://sourceware.org/gdb/), [lldb](https://lldb.llvm.org/), [valgrind](https://valgrind.org/), [rr](https://rr-project.org/), [perf](https://perf.wiki.kernel.org/), [strace](https://strace.io/), [ltrace](https://man7.org/linux/man-pages/man1/ltrace.1.html), [bpftrace](https://github.com/bpftrace/bpftrace), [hyperfine](https://github.com/sharkdp/hyperfine)).
 - **Dev image** (`dev/Dockerfile`): Additional [opam](https://opam.ocaml.org/) packages — testing ([alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect), [qcheck](https://github.com/c-cube/qcheck)), profiling ([landmarks](https://github.com/LexiFi/landmarks), [memtrace](https://github.com/janestreet/memtrace), [runtime_events_tools](https://github.com/tarides/runtime_events_tools), [printbox](https://github.com/c-cube/printbox)), libraries ([base](https://github.com/janestreet/base)), concurrency ([backoff](https://github.com/ocaml-multicore/backoff)).
+- **TSan image** (`tsan/Dockerfile`): Adds an `ocaml+tsan` switch with all the same tools. Requires `vm.mmap_rnd_bits=28` at build time.
 
 ### OxCaml images
 
@@ -30,25 +32,19 @@ All images are published to [Docker Hub](https://hub.docker.com/r/cuihtlauac/oca
 
 ## Building images locally
 
-### ASLR entropy requirement
-
-The [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) (TSan) switch requires reduced [ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization) entropy on the **build host**:
-
-```bash
-sudo sysctl -w vm.mmap_rnd_bits=28
-```
-
-Without this, TSan compilation fails with "unexpected memory mapping" errors.
-See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
-
 ### Build commands
 
 ```bash
-# Build OCaml base image (compilers — takes ~35-50 min)
+# Build OCaml base image (compiler — takes ~20-30 min)
 docker build -t ocaml-devcontainer-base base/
 
 # Build OCaml dev image (tools — takes ~15-20 min)
 docker build -t ocaml-devcontainer dev/
+
+# Build OCaml TSan image (adds ocaml+tsan switch — takes ~20-30 min)
+# IMPORTANT: TSan requires reduced ASLR entropy on the build host
+sudo sysctl -w vm.mmap_rnd_bits=28
+docker build -t ocaml-devcontainer-tsan tsan/
 
 # Build OxCaml base image (OxCaml compiler — takes ~25-35 min)
 docker build -t oxcaml-devcontainer-base oxcaml-base/
@@ -59,6 +55,8 @@ docker build -t oxcaml-devcontainer --build-arg BASE_IMAGE=oxcaml-devcontainer-b
 
 To limit memory usage during [opam](https://opam.ocaml.org/) installs, pass `--build-arg OPAMJOBS=2`.
 
+> **Note:** Only the TSan image build requires the `vm.mmap_rnd_bits=28` sysctl. The base and dev images build without it. See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
+
 ### Using the local build
 
 The `-from-scratch` configurations build from source instead of pulling pre-built images:
@@ -66,6 +64,9 @@ The `-from-scratch` configurations build from source instead of pulling pre-buil
 ```bash
 # OCaml
 devcontainer up --workspace-folder . --config .devcontainer-from-scratch/devcontainer.json
+
+# OCaml + TSan
+devcontainer up --workspace-folder . --config .devcontainer-tsan-from-scratch/devcontainer.json
 
 # OxCaml
 devcontainer up --workspace-folder . --config .devcontainer-oxcaml-from-scratch/devcontainer.json
@@ -77,7 +78,7 @@ Test scripts live in `test/` and run inside the container:
 
 | Script | What it tests |
 |--------|---------------|
-| `test-ocaml.sh [switch]` | Compiler + tools verification (both switches) |
+| `test-ocaml.sh [switch]` | Compiler + tools verification |
 | `test-lsp.sh [switch]` | Full LSP protocol testing |
 | `test-profiling.sh [switch]` | landmarks, memtrace, olly |
 | `test-dune-pkg.sh` | Dune package management workflow |
@@ -86,6 +87,12 @@ Test scripts live in `test/` and run inside the container:
 | `test-emacs.sh` | Emacs TRAMP + eglot integration |
 | `test-claude.sh` | Claude Code installation |
 | `test-oxcaml-switch.sh` | OxCaml compiler, packages, `local_` allocations |
+
+Default switch is `ocaml`. To test the TSan switch, run against the TSan image:
+
+```bash
+./test/test-ocaml.sh ocaml+tsan
+```
 
 ## CI/CD
 
@@ -101,6 +108,10 @@ changes ──► build-base-{amd64,arm64} ──► merge-base (multi-arch mani
 
 Each architecture builds on a native runner (no cross-compilation). Dev image builds depend only on their own architecture's base image, so amd64 and arm64 pipelines run in parallel.
 
+### TSan build pipeline (`build-push-tsan.yml`)
+
+Triggered after successful `build-push.yml` completion, pushes to `main` that touch `tsan/`, or manual dispatch. Builds on top of the dev image.
+
 ### OxCaml build pipeline (`build-push-oxcaml.yml`)
 
 Same fan-out/fan-in pattern as the OCaml pipeline. Triggered by pushes to `main` that touch `oxcaml-base/` or `oxcaml-dev/`.
@@ -109,7 +120,9 @@ Same fan-out/fan-in pattern as the OCaml pipeline. Triggered by pushes to `main`
 
 Triggered on push/PR to `main` and after successful image builds.
 
-Matrix: `[5.4.0, 5.4.0+tsan]` for test-ocaml, test-lsp, test-profiling. Other tests run once against the default switch.
+- **Main image tests**: `test-ocaml`, `test-lsp`, `test-profiling` — single `ocaml` switch, no `--privileged`.
+- **TSan image tests**: `test-ocaml-tsan`, `test-lsp-tsan`, `test-profiling-tsan` — matrix `['ocaml', 'ocaml+tsan']`, `--privileged` for TSan, ASLR sysctl.
+- Other tests run once against the default switch.
 
 ### OxCaml test pipeline (`test-oxcaml-image.yml`)
 

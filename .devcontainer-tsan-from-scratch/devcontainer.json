@@ -1,11 +1,11 @@
 {
-  "name": "OCaml Development (Local Build)",
+  "name": "OCaml Development (TSan, Local Build)",
 
   "build": {
-    "dockerfile": "../dev/Dockerfile",
+    "dockerfile": "../tsan/Dockerfile",
     "context": "..",
     "args": {
-      "BASE_IMAGE": "ocaml-devcontainer-base:latest"
+      "BASE_IMAGE": "ocaml-devcontainer:latest"
     }
   },
 
@@ -26,6 +26,8 @@
       }
     }
   },
+
+  "postStartCommand": "bash .devcontainer-tsan/fix-tsan-aslr.sh",
 
   "remoteUser": "vscode",
 

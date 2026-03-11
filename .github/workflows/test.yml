@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   workflow_run:
-    workflows: ["Build and Push Images"]
+    workflows: ["Build and Push Images", "Build and Push TSan Image"]
     types: [completed]
   workflow_dispatch:
 
@@ -17,21 +17,77 @@ env:
 
 jobs:
   # ============================================================================
-  # Test OCaml compiler and tools (matrix: switch × arch)
+  # Test OCaml compiler and tools (single "ocaml" switch)
   # ============================================================================
   test-ocaml:
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
         runner: [ubuntu-latest]
         # Uncomment to add ARM runners:
         # runner: [ubuntu-latest, ubuntu-24.04-arm]
 
     container:
       image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
-      # TSan requires --privileged to set vm.mmap_rnd_bits kernel parameter
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run OCaml tests
+        run: |
+          ./test/test-ocaml.sh ocaml
+
+  # ============================================================================
+  # Test LSP server
+  # ============================================================================
+  test-lsp:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run LSP tests
+        run: |
+          ./test/test-lsp.sh ocaml
+
+  # ============================================================================
+  # Test profiling tools
+  # ============================================================================
+  test-profiling:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run profiling tests
+        run: |
+          ./test/test-profiling.sh ocaml
+
+  # ============================================================================
+  # Test OCaml TSan image (matrix: ocaml + ocaml+tsan switches)
+  # ============================================================================
+  test-ocaml-tsan:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        switch: ['ocaml', 'ocaml+tsan']
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-tsan:latest
       options: >-
         --user root
         ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
@@ -48,18 +104,15 @@ jobs:
         run: |
           ./test/test-ocaml.sh ${{ matrix.switch }}
 
-  # ============================================================================
-  # Test LSP server (matrix: switch)
-  # ============================================================================
-  test-lsp:
+  test-lsp-tsan:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
+        switch: ['ocaml', 'ocaml+tsan']
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-tsan:latest
       options: >-
         --user root
         ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
@@ -76,18 +129,15 @@ jobs:
         run: |
           ./test/test-lsp.sh ${{ matrix.switch }}
 
-  # ============================================================================
-  # Test profiling tools (matrix: switch)
-  # ============================================================================
-  test-profiling:
+  test-profiling-tsan:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        switch: ['5.4.0', '5.4.0+tsan']
+        switch: ['ocaml', 'ocaml+tsan']
 
     container:
-      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer:latest
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-tsan:latest
       options: >-
         --user root
         ${{ contains(matrix.switch, 'tsan') && '--privileged' || '' }}
@@ -140,6 +190,12 @@ jobs:
 
       - name: Validate .devcontainer-from-scratch/devcontainer.json
         run: devcontainer read-configuration --workspace-folder . --config .devcontainer-from-scratch/devcontainer.json
+
+      - name: Validate .devcontainer-tsan/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-tsan/devcontainer.json
+
+      - name: Validate .devcontainer-tsan-from-scratch/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-tsan-from-scratch/devcontainer.json
 
       - name: Run VS Code tests
         run: |
@@ -272,6 +328,9 @@ jobs:
       - test-ocaml
       - test-lsp
       - test-profiling
+      - test-ocaml-tsan
+      - test-lsp-tsan
+      - test-profiling-tsan
       - test-dune-pkg
       - test-vscode
       - test-emacs
@@ -299,5 +358,8 @@ jobs:
           if [ "${{ needs.test-podman.result }}" != "success" ]; then
             echo "::warning::test-podman failed (Podman support is best-effort)"
           fi
-          # Note: Some tests may be expected to have warnings, not failures
+          # TSan image tests are best-effort (image may not exist yet)
+          if [ "${{ needs.test-ocaml-tsan.result }}" != "success" ]; then
+            echo "::warning::test-ocaml-tsan failed (TSan image may not be available)"
+          fi
           echo "All critical tests passed"

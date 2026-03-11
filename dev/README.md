@@ -27,18 +27,13 @@ devcontainer exec --workspace-folder . dune build
 
 ## What's Included
 
-- **OCaml 5.4** with standard and ThreadSanitizer variants
+- **OCaml 5.4** (single `ocaml` switch)
 - **Build**: dune, ocaml-lsp-server, merlin, utop
 - **Testing**: alcotest, ppx_expect, qcheck
 - **Profiling**: landmarks, memtrace, olly
 - **Editors**: VS Code, Vim, Emacs, Neovim, Claude Code
 
-## OCaml Switches
-
-| Switch | Description |
-|--------|-------------|
-| `5.4.0` | Standard OCaml 5.4 (default) |
-| `5.4.0+tsan` | ThreadSanitizer for race detection |
+For ThreadSanitizer support, use the TSan variant: `cuihtlauac/ocaml-devcontainer-tsan`.
 
 ## For Tutorial Authors
 

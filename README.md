@@ -60,37 +60,34 @@ gh codespace ssh
 
 ## What's inside
 
-### OCaml switches
+### Image variants
 
-Two switches are pre-configured with identical tools:
+| Image | Switches | Size | Codespaces |
+|-------|----------|------|------------|
+| `ocaml-devcontainer` | `ocaml` | ~4.5 GB | Yes |
+| `ocaml-devcontainer-tsan` | `ocaml`, `ocaml+tsan` | ~7.5 GB | No |
+| `oxcaml-devcontainer` | `oxcaml` | ~18.8 GB | Yes |
 
-| Switch | Description |
-|--------|-------------|
-| `5.4.0` | Standard [OCaml 5.4](https://ocaml.org/releases/5.4.0) (default) |
-| `5.4.0+tsan` | [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) for race detection |
+The default image (`ocaml-devcontainer`) ships a single `ocaml` switch. The TSan variant adds an `ocaml+tsan` switch for [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) race detection.
 
-Switch between them:
+### Using the TSan variant
+
+The TSan image requires `vm.mmap_rnd_bits <= 28` at runtime. Use it for local development or CI, not Codespaces:
+
 ```bash
-opam switch 5.4.0+tsan
+# Pre-built image
+devcontainer up --workspace-folder . --config .devcontainer-tsan/devcontainer.json
+
+# Switch to TSan
+opam switch ocaml+tsan
 eval $(opam env)
 ```
-
-> **Note:** The TSan switch requires `vm.mmap_rnd_bits <= 28`. On hosts
-> where the default is higher (modern Linux kernels default to 32), run:
-> ```bash
-> sudo sysctl -w vm.mmap_rnd_bits=28
-> ```
-> The image attempts this automatically at shell startup, but it only works
-> when the container has write access to `/proc/sys` (e.g. Docker Desktop,
-> local `devcontainer up`). **GitHub Codespaces does not grant the required
-> permissions, so the TSan switch is not usable there.**
-> See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 
 ### Installed tools
 
 | Category | Tools |
 |----------|-------|
-| **Compilers** | [OCaml](https://ocaml.org/) 5.4.0, OCaml 5.4.0+tsan |
+| **Compilers** | [OCaml](https://ocaml.org/) 5.4.0 |
 | **Build & dev** | [dune](https://dune.build/), [ocaml-lsp-server](https://github.com/ocaml/ocaml-lsp), [merlin](https://ocaml.github.io/merlin/), [utop](https://github.com/ocaml-community/utop) |
 | **Testing** | [alcotest](https://github.com/mirage/alcotest), [ppx_inline_test](https://github.com/janestreet/ppx_inline_test), [ppx_expect](https://github.com/janestreet/ppx_expect), [qcheck](https://github.com/c-cube/qcheck) |
 | **Profiling** | [landmarks](https://github.com/LexiFi/landmarks), [memtrace](https://github.com/janestreet/memtrace), [runtime_events_tools](https://github.com/tarides/runtime_events_tools) (olly), [printbox](https://github.com/c-cube/printbox) |

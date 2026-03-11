@@ -51,19 +51,9 @@ gh codespace stop
 gh codespace delete
 ```
 
-## Switching OCaml versions
+## OCaml switch
 
-```bash
-# Use standard OCaml 5.4
-opam switch 5.4.0
-eval $(opam env)
-
-# Use ThreadSanitizer variant (for race detection)
-opam switch 5.4.0+tsan
-eval $(opam env)
-```
-
-See the [README](../README.md#ocaml-switches) for the list of available switches.
+The Codespace ships a single `ocaml` switch with OCaml 5.4.0. The [ThreadSanitizer variant](../README.md#using-the-tsan-variant) is available as a separate image for local/CI use but is not supported in Codespaces (TSan requires kernel parameters that Codespaces does not allow).
 
 ## Troubleshooting
 

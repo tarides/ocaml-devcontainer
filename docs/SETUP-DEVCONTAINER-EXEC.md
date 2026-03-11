@@ -57,15 +57,16 @@ dc dune build
 dc vim src/main.ml
 ```
 
-## Switching OCaml versions
+## Using the TSan variant
 
-Wrap the switch command in a single shell invocation:
+For ThreadSanitizer support, use the TSan devcontainer configuration:
 
 ```bash
-devcontainer exec --workspace-folder . bash -c 'opam switch 5.4.0+tsan && eval $(opam env) && dune build'
+devcontainer up --workspace-folder . --config .devcontainer-tsan/devcontainer.json
+devcontainer exec --workspace-folder . bash -c 'opam switch ocaml+tsan && eval $(opam env) && dune build'
 ```
 
-See the [README](../README.md#ocaml-switches) for the list of available switches.
+See the [README](../README.md#using-the-tsan-variant) for details.
 
 ## Stopping the container
 

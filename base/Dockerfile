@@ -109,7 +109,7 @@ RUN opam init --disable-sandboxing --bare --yes
 # ============================================================================
 
 # OCaml platform tools - installed at switch creation time in both switches
-ENV OCAML_PLATFORM="dune ocaml-lsp-server ocamlformat-lib merlin utop"
+ENV OCAML_PLATFORM="dune ocaml-lsp-server ocamlformat merlin utop"
 
 # Create standard OCaml 5.4.0 switch (named "ocaml") and install platform tools
 RUN opam switch create ocaml ocaml-base-compiler.5.4.0 --yes && \

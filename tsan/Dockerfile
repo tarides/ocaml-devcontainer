@@ -24,7 +24,7 @@ WORKDIR /home/vscode
 # Platform tools — must match base/Dockerfile (source of truth)
 # ============================================================================
 
-ENV OCAML_PLATFORM="dune ocaml-lsp-server ocamlformat-lib merlin utop"
+ENV OCAML_PLATFORM="dune ocaml-lsp-server ocamlformat merlin utop"
 
 # ============================================================================
 # Dev tools — must match dev/Dockerfile (source of truth)

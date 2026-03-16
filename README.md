@@ -103,6 +103,12 @@ dune test            # Run tests
 utop                 # Interactive REPL
 ```
 
+## Using this devcontainer in your project
+
+Want contributors to your OCaml project to get a working environment with one click? Add a `.devcontainer/devcontainer.json` that references the pre-built image.
+
+[Full guide](docs/SETUP-YOUR-PROJECT.md)
+
 ## For tutorial and workshop authors
 
 This environment is designed to be extended. Create a tutorial-specific image layered on top:

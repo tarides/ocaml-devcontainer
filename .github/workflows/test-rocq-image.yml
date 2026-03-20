@@ -1,0 +1,191 @@
+name: Rocq Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: ["Build and Push Rocq Image"]
+    types: [completed]
+  workflow_dispatch:
+
+# Container jobs run as root (required by actions/checkout), so we must
+# point opam at the vscode user's opam root and add its bin to PATH.
+env:
+  OPAMROOT: /home/vscode/.opam
+
+jobs:
+  # ============================================================================
+  # Test Rocq installation
+  # ============================================================================
+  test-rocq:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Rocq tests
+        run: |
+          ./test/test-rocq.sh
+
+  # ============================================================================
+  # Test OCaml compiler and tools (same switch, should all pass)
+  # ============================================================================
+  test-ocaml:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run OCaml tests
+        run: |
+          ./test/test-ocaml.sh ocaml
+
+  # ============================================================================
+  # Test LSP server
+  # ============================================================================
+  test-lsp:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run LSP tests
+        run: |
+          ./test/test-lsp.sh ocaml
+
+  # ============================================================================
+  # Test profiling tools
+  # ============================================================================
+  test-profiling:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run profiling tests
+        run: |
+          ./test/test-profiling.sh ocaml
+
+  # ============================================================================
+  # Test editor integrations
+  # ============================================================================
+  test-vscode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Validate .devcontainer-rocq/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-rocq/devcontainer.json
+
+      - name: Validate .devcontainer-rocq-from-scratch/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-rocq-from-scratch/devcontainer.json
+
+      - name: Run VS Code tests
+        run: |
+          ./test/test-vscode.sh
+
+  test-emacs:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Emacs tests
+        run: |
+          ./test/test-emacs.sh
+
+  test-neovim:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Neovim tests
+        run: |
+          ./test/test-neovim.sh
+
+  test-claude:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/ocaml-devcontainer-rocq:latest
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Claude Code tests
+        run: |
+          ./test/test-claude.sh
+
+  # ============================================================================
+  # Summary job (for required status checks)
+  # ============================================================================
+  test-summary:
+    runs-on: ubuntu-latest
+    needs:
+      - test-rocq
+      - test-ocaml
+      - test-lsp
+      - test-profiling
+      - test-vscode
+      - test-emacs
+      - test-neovim
+      - test-claude
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.test-rocq.result }}" != "success" ]; then
+            echo "test-rocq failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-ocaml.result }}" != "success" ]; then
+            echo "test-ocaml failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-lsp.result }}" != "success" ]; then
+            echo "test-lsp failed"
+            exit 1
+          fi
+          # Note: Some tests may be expected to have warnings, not failures
+          echo "All critical tests passed"

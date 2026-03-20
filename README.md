@@ -65,10 +65,11 @@ gh codespace ssh
 | Image | Switches | Size | Codespaces |
 |-------|----------|------|------------|
 | `ocaml-devcontainer` | `ocaml` | ~4.5 GB | Yes |
+| `ocaml-devcontainer-rocq` | `ocaml` | ~5.5 GB | Yes |
 | `ocaml-devcontainer-tsan` | `ocaml`, `ocaml+tsan` | ~7.5 GB | No |
 | `oxcaml-devcontainer` | `oxcaml` | ~18.8 GB | Yes |
 
-The default image (`ocaml-devcontainer`) ships a single `ocaml` switch. See the [TSan variant](#tsan-variant) and [OxCaml variant](#oxcaml-variant) sections below for the other images.
+The default image (`ocaml-devcontainer`) ships a single `ocaml` switch. See the [Rocq variant](#rocq-variant), [TSan variant](#tsan-variant), and [OxCaml variant](#oxcaml-variant) sections below for the other images.
 
 ### Installed tools
 
@@ -111,6 +112,21 @@ Tips:
 - **Provide a Codespace link** — attendees click one button to get started
 - **Have a local fallback** — some venues have poor wifi; the DevContainer CLI workflow works offline once images are pulled
 - **Clean up after** — remind attendees to delete their Codespaces to avoid charges (`gh codespace delete --all`)
+
+## Rocq variant
+
+The Rocq variant adds [Rocq](https://rocq-prover.org/) (formerly Coq) on top of the standard OCaml image. Same `ocaml` switch, same tools, plus the Rocq proof assistant.
+
+```bash
+# Pre-built image
+devcontainer up --workspace-folder . --config .devcontainer-rocq/devcontainer.json
+
+# Local build
+docker build -t ocaml-devcontainer-base base/
+docker build -t ocaml-devcontainer dev/
+docker build -t ocaml-devcontainer-rocq rocq/
+devcontainer up --workspace-folder . --config .devcontainer-rocq-from-scratch/devcontainer.json
+```
 
 ## TSan variant
 

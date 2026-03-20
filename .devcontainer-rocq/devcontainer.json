@@ -1,0 +1,46 @@
+{
+  "name": "OCaml Development (Rocq)",
+  // Pre-built image from Docker Hub. Also available on GHCR:
+  // ghcr.io/tarides/ocaml-devcontainer-rocq:latest
+  "image": "cuihtlauac/ocaml-devcontainer-rocq:latest",
+
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ocamllabs.ocaml-platform"
+      ],
+      "settings": {
+        "ocaml.sandbox": {
+          "kind": "opam",
+          "switch": "ocaml"
+        }
+      }
+    }
+  },
+
+  "postStartCommand": "bash .devcontainer/hide-codespaces-badge.sh",
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    "source=dune-cache,target=/home/vscode/.cache/dune,type=volume"
+  ],
+
+  "remoteEnv": {
+    "DUNE_CACHE_ROOT": "/home/vscode/.cache/dune"
+  },
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+
+  "codespaces": {
+    "openFiles": ["README.md"]
+  }
+}

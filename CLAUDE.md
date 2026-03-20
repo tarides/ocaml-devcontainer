@@ -14,6 +14,7 @@ Three-layer Docker image strategy for fast iteration:
 ocaml-devcontainer-base (compiler, ~20-30 min build, rebuild rare)
     └── ocaml-devcontainer (tools, ~15-20 min build, rebuild when tools update)
         ├── [tutorial-specific] (optional, user-created, seconds to build)
+        ├── ocaml-devcontainer-rocq (adds Rocq, ~10-15 min build)
         └── ocaml-devcontainer-tsan (adds ocaml+tsan switch, ~20-30 min build)
 
 oxcaml-devcontainer-base (compiler, ~25-35 min build, rebuild rare)
@@ -28,6 +29,7 @@ The base image creates a single `ocaml` switch (OCaml 5.4.0). The dev image inst
 | Switch | Image | Description |
 |--------|-------|-------------|
 | `ocaml` | ocaml-devcontainer | Standard compiler (default) |
+| `ocaml` | ocaml-devcontainer-rocq | Standard compiler + Rocq proof assistant |
 | `ocaml+tsan` | ocaml-devcontainer-tsan | ThreadSanitizer variant for race detection |
 
 ### OxCaml images
@@ -41,6 +43,9 @@ The base image creates a single switch. The dev image installs additional tools:
 # OCaml images (no ASLR sysctl needed)
 docker build -t ocaml-devcontainer-base base/
 docker build -t ocaml-devcontainer dev/
+
+# Rocq image (no special requirements)
+docker build -t ocaml-devcontainer-rocq rocq/
 
 # TSan image (requires reduced ASLR entropy)
 sudo sysctl -w vm.mmap_rnd_bits=28
@@ -64,6 +69,7 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-ocaml.sh      # Compiler + tools verification
 ./test/test-lsp.sh        # Full LSP protocol testing
 ./test/test-profiling.sh  # landmarks, memtrace, olly
+./test/test-rocq.sh        # Rocq installation and compilation
 ./test/test-dune-pkg.sh   # Dune package management workflow
 ./test/test-vscode.sh     # VS Code devcontainer integration
 ./test/test-vim.sh        # Vim installation + config
@@ -78,7 +84,7 @@ See [google/sanitizers#1716](https://github.com/google/sanitizers/issues/1716).
 ./test/test-oxcaml-switch.sh  # OxCaml compiler, packages, local_ allocations (oxcaml switch)
 ```
 
-CI runs: single `ocaml` switch for main image, `[ocaml, ocaml+tsan]` matrix for TSan image, `oxcaml` for OxCaml.
+CI runs: single `ocaml` switch for main image, `[ocaml, ocaml+tsan]` matrix for TSan image, `oxcaml` for OxCaml. Rocq image runs `test-rocq.sh` plus reuses `test-ocaml.sh`, `test-lsp.sh`, `test-profiling.sh`.
 
 ## Key Design Decisions
 
@@ -94,11 +100,14 @@ CI runs: single `ocaml` switch for main image, `[ocaml, ocaml+tsan]` matrix for 
 ```
 base/                               # Dockerfile for ocaml-devcontainer-base (compiler only)
 dev/                                # Dockerfile for ocaml-devcontainer (full dev tools)
+rocq/                               # Dockerfile for ocaml-devcontainer-rocq (adds Rocq)
 tsan/                               # Dockerfile for ocaml-devcontainer-tsan (adds ocaml+tsan)
 oxcaml-base/                        # Dockerfile for oxcaml-devcontainer-base
 oxcaml-dev/                         # Dockerfile for oxcaml-devcontainer (full dev tools)
 .devcontainer/                      # OCaml: uses pre-built images (fast startup)
 .devcontainer-from-scratch/         # OCaml: builds locally (for customization)
+.devcontainer-rocq/                 # Rocq: uses pre-built images
+.devcontainer-rocq-from-scratch/    # Rocq: builds locally
 .devcontainer-tsan/                 # TSan: uses pre-built images
 .devcontainer-tsan-from-scratch/    # TSan: builds locally
 .devcontainer-oxcaml/               # OxCaml: uses pre-built images (fast startup)

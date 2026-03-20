@@ -191,6 +191,12 @@ jobs:
       - name: Validate .devcontainer-from-scratch/devcontainer.json
         run: devcontainer read-configuration --workspace-folder . --config .devcontainer-from-scratch/devcontainer.json
 
+      - name: Validate .devcontainer-rocq/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-rocq/devcontainer.json
+
+      - name: Validate .devcontainer-rocq-from-scratch/devcontainer.json
+        run: devcontainer read-configuration --workspace-folder . --config .devcontainer-rocq-from-scratch/devcontainer.json
+
       - name: Validate .devcontainer-tsan/devcontainer.json
         run: devcontainer read-configuration --workspace-folder . --config .devcontainer-tsan/devcontainer.json
 

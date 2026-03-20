@@ -68,20 +68,7 @@ gh codespace ssh
 | `ocaml-devcontainer-tsan` | `ocaml`, `ocaml+tsan` | ~7.5 GB | No |
 | `oxcaml-devcontainer` | `oxcaml` | ~18.8 GB | Yes |
 
-The default image (`ocaml-devcontainer`) ships a single `ocaml` switch. The TSan variant adds an `ocaml+tsan` switch for [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) race detection.
-
-### Using the TSan variant
-
-The TSan image requires `vm.mmap_rnd_bits <= 28` at runtime. Use it for local development or CI, not Codespaces:
-
-```bash
-# Pre-built image
-devcontainer up --workspace-folder . --config .devcontainer-tsan/devcontainer.json
-
-# Switch to TSan
-opam switch ocaml+tsan
-eval $(opam env)
-```
+The default image (`ocaml-devcontainer`) ships a single `ocaml` switch. See the [TSan variant](#tsan-variant) and [OxCaml variant](#oxcaml-variant) sections below for the other images.
 
 ### Installed tools
 
@@ -125,13 +112,29 @@ Tips:
 - **Have a local fallback** — some venues have poor wifi; the DevContainer CLI workflow works offline once images are pulled
 - **Clean up after** — remind attendees to delete their Codespaces to avoid charges (`gh codespace delete --all`)
 
+## TSan variant
+
+The TSan variant adds an `ocaml+tsan` switch for [ThreadSanitizer](https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual) race detection. It requires `vm.mmap_rnd_bits <= 28` at runtime — use it for local development or CI, not Codespaces.
+
+```bash
+# Pre-built image
+devcontainer up --workspace-folder . --config .devcontainer-tsan/devcontainer.json
+
+# Switch to TSan
+opam switch ocaml+tsan
+eval $(opam env)
+
+# Local build
+docker build -t ocaml-devcontainer-base base/
+docker build -t ocaml-devcontainer dev/
+sudo sysctl -w vm.mmap_rnd_bits=28
+docker build -t ocaml-devcontainer-tsan tsan/
+devcontainer up --workspace-folder . --config .devcontainer-tsan-from-scratch/devcontainer.json
+```
+
 ## OxCaml variant
 
-An OxCaml variant is available with [Jane Street](https://www.janestreet.com/)'s [OxCaml](https://oxcaml.org/) compiler. It has a single `oxcaml` switch with [OxCaml](https://github.com/oxcaml) 5.2.0+ox — supports `local_` allocations and other OxCaml features.
-
-The switch includes `await` and `parallel` packages from the [oxcaml opam repository](https://github.com/oxcaml/opam-repository).
-
-To use the OxCaml images:
+An OxCaml variant is available with [Jane Street](https://www.janestreet.com/)'s [OxCaml](https://oxcaml.org/) compiler. It has a single `oxcaml` switch with [OxCaml](https://github.com/oxcaml) 5.2.0+ox — supports `local_` allocations and other OxCaml features. The switch includes `await` and `parallel` packages from the [oxcaml opam repository](https://github.com/oxcaml/opam-repository).
 
 ```bash
 # Pre-built image

@@ -24,7 +24,7 @@ WORKDIR /home/vscode
 RUN opam switch ocaml && \
     eval $(opam env) && \
     opam update && \
-    opam install -y rocq-prover rocq-extraction
+    opam install -y rocq-prover
 
 # ============================================================================
 # Cleanup
